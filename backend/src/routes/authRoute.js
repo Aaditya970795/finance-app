@@ -2,9 +2,10 @@ const express = require('express');
 
 const router = express.Router();
 
-const { registerUser, loginUser, logoutUser } = require('../controllers/authController');
+const { registerUser, loginUser, logoutUser, getProfile } = require('../controllers/authController');
 const validateRegister = require('../middlewares/validateRegister');
 const validateLogin = require('../middlewares/validateLogin');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 /*
     * @route   POST /api/auth/register
@@ -26,5 +27,12 @@ router.post('/login', validateLogin, loginUser);
     * @access  Public
 */
 router.post('/logout', logoutUser);
+
+/*
+    * @route   GET /api/auth/profile
+    * @desc    Get user profile
+    * @access  Private
+*/
+router.get('/profile', authMiddleware, getProfile);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const isValidEmail = (email) => {
     return emailRegex.test(email);
 };
 const validateLogin = (req, res, next) => {
-    console.log('Validating login data:', req.body);
+    // // console.log('Validating login data:', req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
