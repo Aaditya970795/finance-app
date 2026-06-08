@@ -1,4 +1,4 @@
-const userModel = require('../models/User');
+const userModel = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -65,7 +65,7 @@ const getProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
+
         res.status(200).json({ 
             success: true,
             user 

@@ -6,7 +6,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 const authRoute = require('./routes/authRoute');
+const expenseRoute = require('./routes/expenseRoute');
 
 app.use('/api/auth', authRoute);
+app.use('/api/expenses', expenseRoute);
 
 module.exports = app;
