@@ -8,6 +8,9 @@ app.use(cookieParser());
 const authRoute = require('./routes/authRoute');
 const expenseRoute = require('./routes/expenseRoute');
 const analyticsRoute = require('./routes/analyticsRoute');
+const budgetRoute = require('./routes/budgetRoute');
+
+app.use('/api/budgets', budgetRoute);
 
 
 app.use('/api/auth', authRoute);
