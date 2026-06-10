@@ -9,6 +9,9 @@ const authRoute = require('./routes/authRoute');
 const expenseRoute = require('./routes/expenseRoute');
 const analyticsRoute = require('./routes/analyticsRoute');
 const budgetRoute = require('./routes/budgetRoute');
+const transactionRoute = require('./routes/transactionRoute');
+
+app.use('/api/transactions', transactionRoute);
 
 app.use('/api/budgets', budgetRoute);
 
