@@ -1,42 +1,34 @@
-const validateTransaction = (req, res, next) => {
-    const { amount, type, category, date } = req.body;
+const { body } = require('express-validator');
 
-    if(amount === undefined || !type || !category) {
-        return res.status(400).json({
-            success: false,
-            error: 'Amount, type, and category are required'
-        });
-    }
+const validateTransaction = [
+    body('amount')
+        .notEmpty()
+        .withMessage('Amount is required')
+        .bail()
+        .isFloat({ min: 1})
+        .withMessage('Amount must be a positive number'),
 
-    if(typeof amount !== 'number' || amount <= 0) {
-        return res.status(400).json({
-            success: false,
-            error: 'Amount must be a positive number'
-        });
-    }
+    body('type')
+        .trim()
+        .notEmpty()
+        .withMessage('Type is required')
+        .bail()
+        .isIn(['income', 'expense'])
+        .withMessage('Invalid transaction type'),
 
-    if(type !== 'income' && type !== 'expense') {
-        return res.status(400).json({
-            success: false,
-            error: 'Invalid transaction type'
-        });
-    }
+    body('category')
+        .trim()
+        .notEmpty()
+        .withMessage('Category is required')
+        .bail()
+        .isLength({ min: 3 })
+        .withMessage('Category must be at least 3 characters long'),
 
-    if(typeof category !== 'string' || category.trim().length < 3) {
-        return res.status(400).json({
-            success: false,
-            error: 'Category must be at least 3 characters long'
-        });
-    }
+    body('date')
+        .optional()
+        .isISO8601()
+        .withMessage('Invalid date format')
+];
 
-    if(date && isNaN(new Date(date).getTime())) {
-        return res.status(400).json({
-            success: false,
-            error: 'Invalid date format'
-        });
-    }
-
-    next();
-};
 
 module.exports = validateTransaction;

@@ -1,22 +1,19 @@
-const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
-const validateLogin = (req, res, next) => {
-    // // console.log('Validating login data:', req.body);
-    const { email, password } = req.body;
+const { body } = require('express-validator');
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-    if(password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters long' });
-    }
-    if(isValidEmail(email) === false) {
-        return res.status(400).json({ error: 'Invalid email format' });
-    }
+const validateLogin = [
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Invalid email format'),
 
-    next();
-};
+    body('password')
+        .trim()
+        .notEmpty()
+        .withMessage('Password is required')
+        .isLength({ min: 6 })
+        .withMessage('Password must be at least 6 characters long')
+];
 
-module.exports = validateLogin;
+module.exports = validateLogin; 

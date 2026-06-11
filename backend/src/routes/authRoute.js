@@ -6,20 +6,21 @@ const { registerUser, loginUser, logoutUser, getProfile } = require('../controll
 const validateRegister = require('../middlewares/validateRegister');
 const validateLogin = require('../middlewares/validateLogin');
 const authMiddleware = require('../middlewares/authMiddleware');
+const validateMiddleware = require('../middlewares/validateMiddleware');
 
 /*
     * @route   POST /api/auth/register
     * @desc    Register a new user
     * @access  Public
 */
-router.post('/register', validateRegister, registerUser);
+router.post('/register', validateRegister, validateMiddleware, registerUser);
 
 /*
     * @route   POST /api/auth/login
     * @desc    Login user and return JWT token
     * @access  Public
 */
-router.post('/login', validateLogin, loginUser);
+router.post('/login', validateLogin, validateMiddleware, loginUser);
 
 /*
     * @route   POST /api/auth/logout

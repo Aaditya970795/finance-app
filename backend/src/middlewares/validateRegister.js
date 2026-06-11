@@ -1,26 +1,27 @@
-const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-};
+const { body } = require('express-validator');
 
-const validateRegister = (req, res, next) => {
-    console.log('Validating registration data:', req.body);
-    const { username, email, password } = req.body;
+const validateRegister = [
 
-    if (!username || !email || !password) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-    if(password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters long' });
-    }
-    if(username.length < 3) {
-        return res.status(400).json({ error: 'Username must be at least 3 characters long' });
-    }
-    if(isValidEmail(email) === false) {
-        return res.status(400).json({ error: 'Invalid email format' });
-    }
+    body('username')
+        .trim()
+        .notEmpty()
+        .withMessage('Username is required')
+        .isLength({ min: 3 })
+        .withMessage('Username must be at least 3 characters long'),
 
-    next();
-};
+    body('email')
+        .trim()
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Invalid email format'),
+
+    body('password')
+        .trim()
+        .notEmpty()
+        .withMessage('Password is required')
+        .isLength({ min: 6 })
+        .withMessage('Password must be at least 6 characters long')
+];
 
 module.exports = validateRegister;

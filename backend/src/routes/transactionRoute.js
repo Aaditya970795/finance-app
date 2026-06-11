@@ -5,13 +5,14 @@ const { createTransaction, getTransactions, updateTransaction, deleteTransaction
 const authMiddleware = require('../middlewares/authMiddleware');
 const validateTransaction = require('../middlewares/validateTransaction');
 const validateUpdateTransaction = require('../middlewares/validateUpdateTransaction');
+const validateMiddleware = require('../middlewares/validateMiddleware');
 
 /*
     @route POST /api/transactions
     @desc Create a new transaction
     @access Private
 */
-router.post('/', authMiddleware, validateTransaction, createTransaction);
+router.post('/', authMiddleware, validateTransaction, validateMiddleware, createTransaction);
 
 /*
     @route GET /api/transactions
@@ -25,7 +26,7 @@ router.get('/', authMiddleware, getTransactions);
     @desc Update a transaction
     @access Private
 */
-router.put('/:id', authMiddleware, validateUpdateTransaction, updateTransaction);
+router.put('/:id', authMiddleware, validateUpdateTransaction, validateMiddleware, updateTransaction);
 
 /*
     @route DELETE /api/transactions/:id

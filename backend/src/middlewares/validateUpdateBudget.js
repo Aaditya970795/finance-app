@@ -1,31 +1,26 @@
 const { body } = require('express-validator');
 
-const validateBudget = [
+const validateUpdateBudget = [
     body('category')
+        .optional()
         .trim()
-        .notEmpty()
-        .withMessage('Category is required')
-        .bail()
         .isLength({ min: 3 })
         .withMessage('Category must be at least 3 characters long'),
 
-    body('limit')
-        .notEmpty()
-        .withMessage('Limit is required')
+    body('limit') 
+        .optional()
         .isFloat({ min: 1})
         .withMessage('Limit must be a positive number'),
 
     body('month')
-        .notEmpty()
-        .withMessage('Month is required')
+        .optional()
         .isInt({ min: 1, max: 12 })
         .withMessage('Month must be between 1 and 12'),
 
     body('year')
-        .notEmpty()
-        .withMessage('Year is required')
+        .optional()
         .isInt({ min: 2020})
         .withMessage("Enter a valid year")
 ];
 
-module.exports = validateBudget;
+module.exports = validateUpdateBudget;
