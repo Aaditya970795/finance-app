@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const transactionModel = require('../models/transactionModel');
 const budgetModel = require('../models/budgetModel');
 
-const getDashboardSummary = async (req, res) => {
+const getDashboardSummary = async (req, res, next) => {
     try {
         const userId = req.userId;
 
@@ -27,12 +27,11 @@ const getDashboardSummary = async (req, res) => {
         res.status(200).json({ success: true, summary: { totalIncome, totalExpenses, balance, recentTransactions } });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
+        next(error);
     }
 };
 
-const getCategoryBreakdown = async (req, res) => {
+const getCategoryBreakdown = async (req, res, next) => {
     try {
         const userId = req.userId;
 
@@ -46,12 +45,11 @@ const getCategoryBreakdown = async (req, res) => {
         res.status(200).json({ success: true, categoryBreakdown });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
+        next(error);
     }
 };
 
-const getMonthlyOverview = async (req, res) => {
+const getMonthlyOverview = async (req, res, next) => {
     try {
         const userId = req.userId;
 
@@ -65,12 +63,11 @@ const getMonthlyOverview = async (req, res) => {
         res.status(200).json({ success: true, data: monthlyOverview });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
+        next(error);
     }
 };
 
-const getBudgetVsExpenses = async (req, res) => {
+const getBudgetVsExpenses = async (req, res, next) => {
     try {
         const userId = req.userId;
         
@@ -103,8 +100,7 @@ const getBudgetVsExpenses = async (req, res) => {
         res.status(200).json({ success: true, data: budgetVsExpenses });
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
+        next(error);
     }
 };
 

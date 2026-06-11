@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const transactionModel = require('../models/transactionModel');
+const AppError = require('../utils/appError');
 
-const createTransaction = async (req, res) => {
+const createTransaction = async (req, res, next) => {
     try {
         const { type, amount, category, note, date } = req.body;
         const userId = req.userId;
@@ -21,14 +22,11 @@ const createTransaction = async (req, res) => {
             transaction
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
+        next(error);
     }
 };
 
-const getTransactions = async (req, res) => {
+const getTransactions = async (req, res, next) => {
     try {
         const userId = req.userId;
 
@@ -74,14 +72,11 @@ const getTransactions = async (req, res) => {
             transactions
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
+        next(error);
     }
 };
 
-const updateTransaction = async (req, res) => {
+const updateTransaction = async (req, res, next) => {
     try {
         const transactionId = req.params.id;
 
@@ -98,17 +93,11 @@ const updateTransaction = async (req, res) => {
         const transaction = await transactionModel.findById(transactionId);
 
         if (!transaction) {
-            return res.status(404).json({
-                success: false,
-                error: 'Transaction not found'
-            });
+            throw new AppError('Transaction not found', 404);
         }
 
         if (transaction.userId.toString() !== userId.toString()) {
-            return res.status(403).json({
-                success: false,
-                error: 'Unauthorized'
-            });
+            throw new AppError('Unauthorized', 403);
         }
 
         transaction.type = type ?? transaction.type;
@@ -125,14 +114,11 @@ const updateTransaction = async (req, res) => {
             transaction
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
+        next(error);
     }
 };
 
-const deleteTransaction = async (req, res) => { 
+const deleteTransaction = async (req, res, next) => { 
     try {
         const transactionId = req.params.id;
 
@@ -148,17 +134,11 @@ const deleteTransaction = async (req, res) => {
         const transaction = await transactionModel.findById(transactionId);
 
         if (!transaction) {
-            return res.status(404).json({
-                success: false,
-                error: 'Transaction not found'
-            });
+            throw new AppError('Transaction not found', 404);
         }
 
         if (transaction.userId.toString() !== userId.toString()) {
-            return res.status(403).json({
-                success: false,
-                error: 'Unauthorized'
-            });
+            throw new AppError('Unauthorized', 403);
         }
 
         await transaction.deleteOne();
@@ -168,10 +148,7 @@ const deleteTransaction = async (req, res) => {
             message: 'Transaction deleted successfully'
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
+        next(error);
     }
 };
 
