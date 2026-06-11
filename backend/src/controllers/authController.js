@@ -10,7 +10,7 @@ const registerUser = async (req, res) => {
 
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ error: 'User already exists with this email' });
+            return res.status(400).json({ success: false, error: 'User already exists with this email' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,11 +21,11 @@ const registerUser = async (req, res) => {
 
         res.cookie('token', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
-        res.status(201).json({ message: 'User registered successfully',
+        res.status(201).json({ success: true, message: 'User registered successfully',
                 user: { id: user._id, username: user.username, email: user.email }
          });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -35,27 +35,27 @@ const loginUser = async (req, res) => {
 
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ success: false, error: 'Invalid credentials' });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ success: false, error: 'Invalid credentials' });
         }
 
         const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
         res.cookie('token', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
-        res.status(200).json({ message: 'Login successful', user: { id: user._id, username: user.username, email: user.email } });
+        res.status(200).json({ success: true, message: 'Login successful', user: { id: user._id, username: user.username, email: user.email } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
 const logoutUser = (req, res) => {
     res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-    res.status(200).json({ message: 'Logout successful' });
+    res.status(200).json({ success: true, message: 'Logout successful' });
 };
 
 const getProfile = async (req, res) => {
@@ -63,7 +63,7 @@ const getProfile = async (req, res) => {
         const user = await userModel.findById(req.userId).select('-password');
 
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
 
         res.status(200).json({ 
