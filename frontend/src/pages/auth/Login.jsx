@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
+
 import FormField from "../../components/ui/FormField";
+import axiosInstance from "../../api/axiosInstance";
 
 function LoginBrandPanel() {
   return (
@@ -26,9 +30,11 @@ function LoginBrandPanel() {
             />
           </svg>
         </div>
+
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           FinanceAI
         </h1>
+
         <p className="mt-3 max-w-sm text-muted leading-relaxed">
           Manage portfolios, track spending, and get AI-powered insights — all
           in one secure dashboard.
@@ -47,7 +53,10 @@ function LoginBrandPanel() {
             <p className="text-xs uppercase tracking-wider text-subtle">
               {stat.label}
             </p>
-            <p className="mt-1 font-mono text-lg text-brand">{stat.value}</p>
+
+            <p className="mt-1 font-mono text-lg text-brand">
+              {stat.value}
+            </p>
           </div>
         ))}
       </div>
@@ -55,7 +64,12 @@ function LoginBrandPanel() {
   );
 }
 
-function LoginForm({ onSubmit, isSubmitting }) {
+function LoginForm({
+  onSubmit,
+  isSubmitting,
+  formData,
+  handleChange,
+}) {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <FormField
@@ -63,6 +77,8 @@ function LoginForm({ onSubmit, isSubmitting }) {
         label="Email"
         type="email"
         name="email"
+        value={formData.email}
+        onChange={handleChange}
         placeholder="you@company.com"
         autoComplete="email"
         required
@@ -70,9 +86,13 @@ function LoginForm({ onSubmit, isSubmitting }) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label htmlFor="password" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-foreground"
+          >
             Password
           </label>
+
           <Link
             to="/forgot-password"
             className="text-sm text-brand transition hover:text-brand-hover"
@@ -80,10 +100,13 @@ function LoginForm({ onSubmit, isSubmitting }) {
             Forgot password?
           </Link>
         </div>
+
         <input
           id="password"
           type="password"
           name="password"
+          value={formData.password}
+          onChange={handleChange}
           placeholder="Enter your password"
           autoComplete="current-password"
           required
@@ -103,14 +126,49 @@ function LoginForm({ onSubmit, isSubmitting }) {
 }
 
 export default function Login() {
+  const { login } = useAuth();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setIsSubmitting(true);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-    // Placeholder — wire to auth API when available
-    setTimeout(() => setIsSubmitting(false), 800);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await axiosInstance.post(
+        "/auth/login",
+        formData
+      );
+
+      login(response.data.token);
+
+      toast.success("Login successful");
+
+      navigate("/dashboard");
+
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        "Login failed"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -142,7 +200,11 @@ export default function Login() {
                   />
                 </svg>
               </div>
-              <h1 className="text-2xl font-semibold text-foreground">FinanceAI</h1>
+
+              <h1 className="text-2xl font-semibold text-foreground">
+                FinanceAI
+              </h1>
+
               <p className="mt-1 text-sm text-muted">
                 Sign in to your finance dashboard
               </p>
@@ -153,17 +215,23 @@ export default function Login() {
                 <h2 className="text-xl font-semibold text-foreground">
                   Welcome back
                 </h2>
+
                 <p className="mt-1 text-sm text-muted">
                   Enter your credentials to access your account
                 </p>
               </div>
 
-              <LoginForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+              <LoginForm
+                onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+                formData={formData}
+                handleChange={handleChange}
+              />
 
               <p className="mt-6 text-center text-sm text-muted">
                 Don&apos;t have an account?{" "}
                 <Link
-                  to="/signup"
+                  to="/register"
                   className="font-medium text-brand transition hover:text-brand-hover"
                 >
                   Sign up

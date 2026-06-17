@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import FormField from "../../components/ui/FormField";
+import axiosInstance from "../../api/axiosInstance";
 
 function RegisterBrandPanel() {
   return (
@@ -26,9 +29,11 @@ function RegisterBrandPanel() {
             />
           </svg>
         </div>
+
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           FinanceAI
         </h1>
+
         <p className="mt-3 max-w-sm text-muted leading-relaxed">
           Create your account and start managing portfolios, tracking spending,
           and unlocking AI-powered financial insights.
@@ -47,7 +52,10 @@ function RegisterBrandPanel() {
             <p className="text-xs uppercase tracking-wider text-subtle">
               {stat.label}
             </p>
-            <p className="mt-1 font-mono text-lg text-brand">{stat.value}</p>
+
+            <p className="mt-1 font-mono text-lg text-brand">
+              {stat.value}
+            </p>
           </div>
         ))}
       </div>
@@ -55,16 +63,23 @@ function RegisterBrandPanel() {
   );
 }
 
-function RegisterForm({ onSubmit, isSubmitting }) {
+function RegisterForm({
+  onSubmit,
+  isSubmitting,
+  formData,
+  handleChange,
+}) {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <FormField
-        id="fullName"
-        label="Full name"
+        id="username"
+        label="Username"
         type="text"
-        name="fullName"
-        placeholder="Jane Doe"
-        autoComplete="name"
+        name="username"
+        value={formData.username}
+        onChange={handleChange}
+        placeholder="johndoe"
+        autoComplete="username"
         required
       />
 
@@ -73,6 +88,8 @@ function RegisterForm({ onSubmit, isSubmitting }) {
         label="Email"
         type="email"
         name="email"
+        value={formData.email}
+        onChange={handleChange}
         placeholder="you@company.com"
         autoComplete="email"
         required
@@ -83,6 +100,8 @@ function RegisterForm({ onSubmit, isSubmitting }) {
         label="Password"
         type="password"
         name="password"
+        value={formData.password}
+        onChange={handleChange}
         placeholder="Create a password"
         autoComplete="new-password"
         required
@@ -93,6 +112,8 @@ function RegisterForm({ onSubmit, isSubmitting }) {
         label="Confirm password"
         type="password"
         name="confirmPassword"
+        value={formData.confirmPassword}
+        onChange={handleChange}
         placeholder="Confirm your password"
         autoComplete="new-password"
         required
@@ -112,12 +133,53 @@ function RegisterForm({ onSubmit, isSubmitting }) {
 export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setIsSubmitting(true);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-    // Placeholder — wire to auth API when available
-    setTimeout(() => setIsSubmitting(false), 800);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      await axiosInstance.post("/auth/register", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      toast.success("Account created successfully");
+
+      navigate("/");
+
+    } catch (error) {
+      console.log(error.response?.data);
+
+      toast.error(
+        error.response?.data?.error ||
+        "Registration failed"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -149,7 +211,11 @@ export default function Register() {
                   />
                 </svg>
               </div>
-              <h1 className="text-2xl font-semibold text-foreground">FinanceAI</h1>
+
+              <h1 className="text-2xl font-semibold text-foreground">
+                FinanceAI
+              </h1>
+
               <p className="mt-1 text-sm text-muted">
                 Create your finance dashboard account
               </p>
@@ -160,12 +226,18 @@ export default function Register() {
                 <h2 className="text-xl font-semibold text-foreground">
                   Get started
                 </h2>
+
                 <p className="mt-1 text-sm text-muted">
                   Fill in your details to create a new account
                 </p>
               </div>
 
-              <RegisterForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+              <RegisterForm
+                onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+                formData={formData}
+                handleChange={handleChange}
+              />
 
               <p className="mt-6 text-center text-sm text-muted">
                 Already have an account?{" "}
