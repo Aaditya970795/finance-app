@@ -18,7 +18,7 @@ const budgetSchema = new mongoose.Schema({
     },
     month: {
         type: Number,
-        requires: true,
+        required: true,
         min: 1,
         max: 12
     },

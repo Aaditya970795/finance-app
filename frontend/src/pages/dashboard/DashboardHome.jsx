@@ -1,33 +1,71 @@
+import { useEffect, useState } from "react";
+import {
+  getDashboardSummary,
+  getCategoryBreakdown,
+  getMonthlyOverview,
+  getBudgetVsExpenses,
+} from "../../services/dashboardService";
+
+import StatCards from "../../components/dashboard/StatCards";
+import BudgetProgress from "../../components/dashboard/BudgetProgress";
+import CategoryChart from "../../components/dashboard/CategoryChart";
+import MonthlyChart from "../../components/dashboard/MonthlyChart";
+import RecentTransactions from "../../components/dashboard/RecentTransactions";
+
 export default function DashboardHome() {
+  const [summary, setSummary] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [monthly, setMonthly] = useState([]);
+  const [budgets, setBudgets] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        const [
+          summaryRes,
+          categoryRes,
+          monthlyRes,
+          budgetRes,
+        ] = await Promise.all([
+          getDashboardSummary(),
+          getCategoryBreakdown(),
+          getMonthlyOverview(),
+          getBudgetVsExpenses(),
+        ]);
+
+        setSummary(summaryRes.data.summary);
+        setCategories(categoryRes.data.categoryBreakdown);
+        setMonthly(monthlyRes.data.data);
+        setBudgets(budgetRes.data.data);
+
+      } catch (err) {
+        console.error("Dashboard error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <div>Loading dashboard...</div>;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-foreground">Dashboard</h2>
-        <p className="mt-1 text-sm text-muted">
-          Overview of your finances at a glance.
-        </p>
+    <div className="p-6 space-y-6">
+      <StatCards summary={summary} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <BudgetProgress budgets={budgets} />
+        <CategoryChart data={categories} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: "Total Balance", value: "$24,580.00" },
-          { label: "Monthly Income", value: "$8,200.00" },
-          { label: "Monthly Expenses", value: "$3,450.00" },
-          { label: "Savings Rate", value: "58%" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-border bg-surface-raised p-5 shadow-card"
-          >
-            <p className="text-xs uppercase tracking-wider text-subtle">
-              {stat.label}
-            </p>
-            <p className="mt-2 font-mono text-2xl font-semibold text-foreground">
-              {stat.value}
-            </p>
-          </div>
-        ))}
-      </div>
+      <MonthlyChart data={monthly} />
+
+      <RecentTransactions transactions={summary.recentTransactions} />
     </div>
   );
 }
