@@ -155,7 +155,7 @@ export default function Login() {
         formData
       );
 
-      login(response.data.token);
+      login(response.data.token, response.data.user);
 
       toast.success("Login successful");
 

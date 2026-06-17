@@ -48,14 +48,13 @@ const loginUser = async (req, res, next) => {
 
         res.cookie('token', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
-        res.status(200).json({ success: true, message: 'Login successful', user: { id: user._id, username: user.username, email: user.email } });
+        res.status(200).json({ success: true, message: 'Login successful', token: jwtToken, user: { id: user._id, username: user.username, email: user.email } });
     } catch (error) {
         next(error);
     }
 };
 
 const logoutUser = (req, res, next) => {
-    res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
     res.status(200).json({ success: true, message: 'Logout successful' });
 };
 
