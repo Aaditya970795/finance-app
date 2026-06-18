@@ -42,7 +42,7 @@ const getCategoryBreakdown = async (req, res, next) => {
             { $project: {_id: 0, category: '$_id', total: 1} }
         ]);
 
-        res.status(200).json({ success: true, categoryBreakdown });
+        res.status(200).json({ success: true, data : categoryBreakdown });
 
     } catch (error) {
         next(error);

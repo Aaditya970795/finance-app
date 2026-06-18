@@ -11,6 +11,7 @@ const authRoute = require('./routes/authRoute');
 const budgetRoute = require('./routes/budgetRoute');
 const transactionRoute = require('./routes/transactionRoute');
 const dashboardRoute = require('./routes/dashboardRoute');
+const analyticsRoute = require('./routes/analyticsRoute');
 const errorMiddleware = require('./middlewares/errorMiddleware');
 
 
@@ -20,6 +21,7 @@ app.use('/api/transactions', transactionRoute);
 
 app.use('/api/budgets', budgetRoute);
 
+app.use('/api/analytics', analyticsRoute);
 
 app.use('/api/auth', authRoute);
 

@@ -1,85 +1,180 @@
-const mongooose = require('mongoose');
-const expenseModel = require('../models/expenseModel');
+const mongoose = require("mongoose");
+const transactionModel = require("../models/transactionModel");
 
-const getTotalExpenses = async (req, res) => {
-    try {
+const getMonthlyTrend = async (req, res, next) => {
+  try {
+    const userId = req.userId;
 
-        const userId = req.userId;
+    // Last 12 months filter
+    const lastYear = new Date();
+    lastYear.setMonth(lastYear.getMonth() - 12);
 
-        const totalExpenses = await expenseModel.aggregate([
-            { $match: { userId: new mongooose.Types.ObjectId(userId) } },
-            { $group: { _id: null, total: { $sum: "$amount" } } }
-        ]);
+    const monthlyTrend = await transactionModel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          type: "expense",
+          date: { $gte: lastYear },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$date",
+            },
+          },
+          total: {
+            $sum: "$amount",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id",
+          total: 1,
+        },
+      },
+    ]);
 
-        const total = totalExpenses.length > 0 ? totalExpenses[0].total : 0;
-
-        res.status(200).json({ success: true, totalExpenses: total });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
+    res.status(200).json({
+      success: true,
+      data: monthlyTrend,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const getCategoryBreakdown = async (req, res) => {
-    try {
+const getIncomeExpenseTrend = async (req, res, next) => {
+  try {
+    const userId = req.userId;
 
-        const userId = req.userId;
+    // Last 12 months filter
+    const lastYear = new Date();
+    lastYear.setMonth(lastYear.getMonth() - 12);
 
-        const categoryBreakdown = await expenseModel.aggregate([
-            { $match: { userId: new mongooose.Types.ObjectId(userId) } },
-            { $group: { _id: "$category", total: { $sum: "$amount" } } },
-            { $project: {_id: 0, category: '$_id', total: 1}}
-        ]);
+    const incomeExpenseTrend = await transactionModel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          date: { $gte: lastYear },
+        },
+      },
+      {
+        $group: {
+            _id: {
+            $dateToString: {
+                format: "%Y-%m",
+                date: "$date",
+            },
+            },
 
-        res.status(200).json({ success: true, data: categoryBreakdown });
+            income: {
+            $sum: {
+                $cond: [
+                { $eq: ["$type", "income"] },
+                "$amount",
+                0,
+                ],
+            },
+            },
 
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
+            expense: {
+            $sum: {
+                $cond: [
+                { $eq: ["$type", "expense"] },
+                "$amount",
+                0,
+                ],
+            },
+            },
+        },
+        },
+        {
+        $sort: {
+            _id: 1,
+        },
+        },
+        {
+        $project: {
+            _id: 0,
+            month: "$_id",
+            income: 1,
+            expense: 1,
+        },
+        },
+    ]);    
+
+    res.status(200).json({
+      success: true,
+      data: incomeExpenseTrend,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const getMonthlyExpenses = async (req, res) => {
-    try {
+const getBudgetUtilization = async (req, res, next) => {
+  try {
+    const userId = req.userId;
 
-        const userId = req.userId;
+    // Last 12 months filter
+    const lastYear = new Date();
+    lastYear.setMonth(lastYear.getMonth() - 12);
 
-        const monthlyExpenses = await expenseModel.aggregate([
-            { $match: { userId: new mongooose.Types.ObjectId(userId) } },
-            { $group: { _id: { $dateToString: { format: "%Y-%m", date: "$date" } }, total: { $sum: "$amount" } } },
-            { $sort: { _id: 1 } },
-            { $project: {_id: 0, month: '$_id', total: 1} }
-            
-        ]);
+    const budgetUtilization = await transactionModel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          type: "expense",
+          date: { $gte: lastYear },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$date",
+            },
+          },
+          total: {
+            $sum: "$amount",
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id",
+          total: 1,
+        },
+      },
+    ]);
 
-        res.status(200).json({ success: true, data: monthlyExpenses });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-};
-
-const getRecentTransactions = async (req, res) => {
-    try {
-
-        const userId = req.userId;
-
-        const recentTransactions = await expenseModel.find({ userId }).sort({ date: -1 }).limit(5);
-
-        res.status(200).json({ success: true, data: recentTransactions });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
+    res.status(200).json({
+      success: true,
+      data: budgetUtilization,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
-    getTotalExpenses,
-    getCategoryBreakdown,
-    getMonthlyExpenses,
-    getRecentTransactions
+  getMonthlyTrend,
+  getIncomeExpenseTrend
 };
-
