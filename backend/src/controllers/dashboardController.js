@@ -123,10 +123,11 @@ const getBudgetVsExpenses = async (req, res, next) => {
                         : 0;
 
                 return {
+                    _id: budget._id,
                     category: budget.category,
                     month: budget.month,
                     year: budget.year,
-                    budget: budget.limit,
+                    limit: budget.limit,
                     spent,
                     remaining,
                     percentageUsed

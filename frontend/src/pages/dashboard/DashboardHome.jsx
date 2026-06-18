@@ -37,10 +37,19 @@ export default function DashboardHome() {
           getBudgetVsExpenses(),
         ]);
 
-        setSummary(summaryRes.data.summary);
-        setCategories(categoryRes.data.categoryBreakdown);
-        setMonthly(monthlyRes.data.data);
-        setBudgets(budgetRes.data.data);
+        setSummary(summaryRes.summary || null);
+
+        setCategories(
+          categoryRes.categoryBreakdown || []
+        );
+
+        setMonthly(
+          monthlyRes.data || []
+        );
+
+        setBudgets(
+          budgetRes.data || []
+        );
 
       } catch (err) {
         console.error("Dashboard error:", err);
@@ -52,7 +61,13 @@ export default function DashboardHome() {
     fetchData();
   }, []);
 
-  if (loading) return <div>Loading dashboard...</div>;
+  if (loading) {
+    return (
+      <div className="p-6">
+        Loading dashboard...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -65,7 +80,9 @@ export default function DashboardHome() {
 
       <MonthlyChart data={monthly} />
 
-      <RecentTransactions transactions={summary.recentTransactions} />
+      <RecentTransactions
+        transactions={summary?.recentTransactions || []}
+      />
     </div>
   );
 }
