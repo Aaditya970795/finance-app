@@ -5,7 +5,8 @@ import { getBudgetVsExpenses } from "../../services/dashboardService";
 import {
   getMonthlyTrend,
   getIncomeExpenseTrend,
-  getFilteredCategoryBreakdown
+  getFilteredCategoryBreakdown,
+  getInsights
 } from "../../services/analyticsService";
 
 
@@ -13,6 +14,7 @@ import ExpenseTrendChart from "../../components/analytics/ExpenseTrendChart";
 import IncomeExpenseChart from "../../components/analytics/IncomeExpenseChart";
 import CategoryPieChart from "../../components/analytics/CategoryPieChart";
 import BudgetUtilizationCards from "../../components/analytics/BudgetUtilizationCards";
+import AIInsights from "../../components/analytics/AIInsights";
 
 export default function AnalyticsPage() {
   const [monthlyTrend, setMonthlyTrend] = useState([]);
@@ -20,6 +22,7 @@ export default function AnalyticsPage() {
   const [categories, setCategories] = useState([]);
   const [budgetUtilization, setBudgetUtilization] = useState([]);
   const [range, setRange] = useState("12m");
+  const [insights, setInsights] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -32,17 +35,20 @@ export default function AnalyticsPage() {
         incomeExpenseRes,
         categoryRes,
         budgetRes,
+        insightsRes
       ] = await Promise.all([
         getMonthlyTrend(range),
         getIncomeExpenseTrend(range),
         getFilteredCategoryBreakdown(range),
         getBudgetVsExpenses(),
+        getInsights(range)
       ]);
 
       setMonthlyTrend(monthlyRes.data);
       setIncomeExpense(incomeExpenseRes.data);
       setCategories(categoryRes.data);
       setBudgetUtilization(budgetRes.data);
+      setInsights(insightsRes.data);
     } catch (error) {
       console.error("Failed to fetch analytics:", error);
     } finally {
@@ -92,6 +98,9 @@ export default function AnalyticsPage() {
         <BudgetUtilizationCards
           data={budgetUtilization}
         />
+
+        <AIInsights insights={insights} />
+
       </div>
   
     </div>

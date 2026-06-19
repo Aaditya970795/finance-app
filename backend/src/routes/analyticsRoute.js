@@ -4,7 +4,8 @@ const router = express.Router();
 const {
   getMonthlyTrend,
   getIncomeExpenseTrend,
-  getFilteredCategoryBreakdown
+  getFilteredCategoryBreakdown,
+  getInsights
 } = require("../controllers/analyticsController");
 
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -40,6 +41,17 @@ router.get(
   "/category-breakdown",
   authMiddleware,
   getFilteredCategoryBreakdown
+);
+
+/*
+    @route   GET /api/analytics/insights
+    @desc    Get insights for the user
+    @access  Private
+*/
+router.get(
+  "/insights",
+  authMiddleware,
+  getInsights
 );
 
 module.exports = router;

@@ -28,3 +28,11 @@ export const getFilteredCategoryBreakdown =
 
     return response.data;
   };
+
+  export const getInsights = async (range = "12m") => {
+    const response = await axiosInstance.get(
+      `/analytics/insights?range=${range}`
+    );
+  
+    return response.data;
+  };

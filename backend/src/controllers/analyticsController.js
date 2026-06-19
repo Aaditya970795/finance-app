@@ -4,6 +4,12 @@ const transactionModel = require("../models/transactionModel");
 const getStartDateFromRange = require("../utils/getStartDateFromRange");
 const validateRange = require("../utils/validateRange");
 
+const calculateSavings = require("../utils/analytics/calculateSavings");
+const getTopCategory = require("../utils/analytics/getTopCategory");
+const getExpenseTrend = require("../utils/analytics/getExpenseTrend");
+const { getBudgetAlert } = require("../utils/analytics/getBudgetAlert");
+
+
 const getMonthlyTrend = async (req, res, next) => {
   try {
     const userId = req.userId;
@@ -208,8 +214,46 @@ const getFilteredCategoryBreakdown = async (req, res, next) => {
   }
 };
 
+const getInsights = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+
+    const range = req.query.range || "12m";
+
+    if(!validateRange(range)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid range. Allowed values: 3m, 6m, 12m, and all.",
+      });
+    }
+
+    const savings = await calculateSavings(userId, range);
+
+    const topCategory = await getTopCategory(userId, range);
+
+    const expenseTrend = await getExpenseTrend(userId);
+
+    const budgetAlert = await getBudgetAlert(userId);
+    
+    
+
+    res.status(200).json({
+      success: true,
+      data: {
+        savings,
+        topCategory,
+        expenseTrend,
+        budgetAlert
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getMonthlyTrend,
   getIncomeExpenseTrend,
-  getFilteredCategoryBreakdown
+  getFilteredCategoryBreakdown,
+  getInsights
 };
