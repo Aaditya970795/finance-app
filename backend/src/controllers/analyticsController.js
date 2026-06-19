@@ -1,21 +1,36 @@
 const mongoose = require("mongoose");
 const transactionModel = require("../models/transactionModel");
 
+const getStartDateFromRange = require("../utils/getStartDateFromRange");
+const validateRange = require("../utils/validateRange");
+
 const getMonthlyTrend = async (req, res, next) => {
   try {
     const userId = req.userId;
 
-    // Last 12 months filter
-    const lastYear = new Date();
-    lastYear.setMonth(lastYear.getMonth() - 12);
+    const range = req.query.range || "12m";
+
+    if(!validateRange(range)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid range. Allowed values: 3m, 6m, 12m, and all.",
+      });
+    }
+
+    const startDate = getStartDateFromRange(range);
+
+    const matchStage = {
+      userId: new mongoose.Types.ObjectId(userId),
+      type: "expense",
+    };
+
+    if (startDate) {
+      matchStage.date = { $gte: startDate };
+    }
 
     const monthlyTrend = await transactionModel.aggregate([
       {
-        $match: {
-          userId: new mongoose.Types.ObjectId(userId),
-          type: "expense",
-          date: { $gte: lastYear },
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -57,16 +72,28 @@ const getIncomeExpenseTrend = async (req, res, next) => {
   try {
     const userId = req.userId;
 
-    // Last 12 months filter
-    const lastYear = new Date();
-    lastYear.setMonth(lastYear.getMonth() - 12);
+    const range = req.query.range || "12m";
+
+    if(!validateRange(range)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid range. Allowed values: 3m, 6m, 12m, and all.",
+      });
+    }
+
+    const startDate = getStartDateFromRange(range);
+
+    const matchStage = {
+      userId: new mongoose.Types.ObjectId(userId),
+    };
+
+    if (startDate) {
+      matchStage.date = { $gte: startDate };
+    }
 
     const incomeExpenseTrend = await transactionModel.aggregate([
       {
-        $match: {
-          userId: new mongoose.Types.ObjectId(userId),
-          date: { $gte: lastYear },
-        },
+        $match: matchStage,
       },
       {
         $group: {
@@ -122,52 +149,59 @@ const getIncomeExpenseTrend = async (req, res, next) => {
   }
 };
 
-const getBudgetUtilization = async (req, res, next) => {
+const getFilteredCategoryBreakdown = async (req, res, next) => {
   try {
     const userId = req.userId;
 
-    // Last 12 months filter
-    const lastYear = new Date();
-    lastYear.setMonth(lastYear.getMonth() - 12);
+    const range = req.query.range || "12m";
 
-    const budgetUtilization = await transactionModel.aggregate([
-      {
-        $match: {
-          userId: new mongoose.Types.ObjectId(userId),
-          type: "expense",
-          date: { $gte: lastYear },
+    if(!validateRange(range)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid range. Allowed values: 3m, 6m, 12m, and all.",
+      });
+    }
+
+    const startDate = getStartDateFromRange(range);
+
+    const matchStage = {
+      userId: new mongoose.Types.ObjectId(userId),
+      type: "expense",
+    };
+
+    if (startDate) {
+      matchStage.date = { $gte: startDate };
+    }
+    const categoryBreakdown =
+    await transactionModel.aggregate([
+        {
+            $match: matchStage,
         },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m",
-              date: "$date",
+        {
+            $group: {
+                _id: "$category",
+                total: {
+                    $sum: "$amount",
+                },
             },
-          },
-          total: {
-            $sum: "$amount",
-          },
         },
-      },
-      {
-        $sort: {
-          _id: 1,
+        {
+            $sort: {
+                total: -1,
+            },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          month: "$_id",
-          total: 1,
+        {
+            $project: {
+                _id: 0,
+                category: "$_id",
+                total: 1,
+            },
         },
-      },
     ]);
 
     res.status(200).json({
       success: true,
-      data: budgetUtilization,
+      data: categoryBreakdown,
     });
   } catch (error) {
     next(error);
@@ -176,5 +210,6 @@ const getBudgetUtilization = async (req, res, next) => {
 
 module.exports = {
   getMonthlyTrend,
-  getIncomeExpenseTrend
+  getIncomeExpenseTrend,
+  getFilteredCategoryBreakdown
 };
