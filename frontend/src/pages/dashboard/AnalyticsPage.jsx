@@ -6,9 +6,8 @@ import {
   getMonthlyTrend,
   getIncomeExpenseTrend,
   getFilteredCategoryBreakdown,
-  getInsights
+  getInsights,
 } from "../../services/analyticsService";
-
 
 import ExpenseTrendChart from "../../components/analytics/ExpenseTrendChart";
 import IncomeExpenseChart from "../../components/analytics/IncomeExpenseChart";
@@ -21,9 +20,9 @@ export default function AnalyticsPage() {
   const [incomeExpense, setIncomeExpense] = useState([]);
   const [categories, setCategories] = useState([]);
   const [budgetUtilization, setBudgetUtilization] = useState([]);
-  const [range, setRange] = useState("12m");
   const [insights, setInsights] = useState(null);
 
+  const [range, setRange] = useState("12m");
   const [loading, setLoading] = useState(true);
 
   const fetchAnalytics = async () => {
@@ -35,20 +34,20 @@ export default function AnalyticsPage() {
         incomeExpenseRes,
         categoryRes,
         budgetRes,
-        insightsRes
+        insightsRes,
       ] = await Promise.all([
         getMonthlyTrend(range),
         getIncomeExpenseTrend(range),
         getFilteredCategoryBreakdown(range),
         getBudgetVsExpenses(),
-        getInsights(range)
+        getInsights(range),
       ]);
 
-      setMonthlyTrend(monthlyRes.data);
-      setIncomeExpense(incomeExpenseRes.data);
-      setCategories(categoryRes.data);
-      setBudgetUtilization(budgetRes.data);
-      setInsights(insightsRes.data);
+      setMonthlyTrend(monthlyRes.data || []);
+      setIncomeExpense(incomeExpenseRes.data || []);
+      setCategories(categoryRes.data || []);
+      setBudgetUtilization(budgetRes.data || []);
+      setInsights(insightsRes.data || null);
     } catch (error) {
       console.error("Failed to fetch analytics:", error);
     } finally {
@@ -62,47 +61,65 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <p>Loading analytics...</p>
+      <div className="space-y-6">
+        <div className="h-10 w-72 animate-pulse rounded-lg bg-surface-raised" />
+
+        <div className="h-80 animate-pulse rounded-xl bg-surface-raised" />
+
+        <div className="h-80 animate-pulse rounded-xl bg-surface-raised" />
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="h-96 animate-pulse rounded-xl bg-surface-raised" />
+          <div className="h-96 animate-pulse rounded-xl bg-surface-raised" />
+        </div>
+
+        <div className="h-72 animate-pulse rounded-xl bg-surface-raised" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
-  
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">
-          Analytics
-        </h1>
-  
+    
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Analytics
+          </h1>
+
+          <p className="mt-1 text-muted">
+            Understand your financial patterns with interactive charts and AI insights.
+          </p>
+        </div>
+
         <select
-        value={range}
-        onChange={(e) => setRange(e.target.value)}
-        className="border border-gray-300 bg-white text-gray-900 rounded-lg px-3 py-2 shadow-sm"
-      >
-        <option value="3m">Last 3 Months</option>
-        <option value="6m">Last 6 Months</option>
-        <option value="12m">Last 12 Months</option>
-        <option value="all">All Time</option>
-      </select>
+          value={range}
+          onChange={(e) => setRange(e.target.value)}
+          className="rounded-lg border border-border bg-surface-raised px-4 py-2 text-sm text-foreground outline-none transition focus:border-brand"
+        >
+          <option value="3m">Last 3 Months</option>
+          <option value="6m">Last 6 Months</option>
+          <option value="12m">Last 12 Months</option>
+          <option value="all">All Time</option>
+        </select>
       </div>
-  
+
+      {/* Charts */}
       <ExpenseTrendChart data={monthlyTrend} />
-  
+
       <IncomeExpenseChart data={incomeExpense} />
-  
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <CategoryPieChart data={categories} />
-  
+
         <BudgetUtilizationCards
           data={budgetUtilization}
         />
-
-        <AIInsights insights={insights} />
-
       </div>
-  
+
+      {/* AI Insights */}
+      <AIInsights insights={insights} />
     </div>
   );
 }

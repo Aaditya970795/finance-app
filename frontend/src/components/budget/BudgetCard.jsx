@@ -1,58 +1,106 @@
-export default function BudgetCard({ budget, onEdit, onDelete }) {
-  const limit = budget.limit || 1;
+import Card from "../ui/Card";
+import Button from "../ui/Button";
 
-  // fallback because backend doesn't send spent yet
+export default function BudgetCard({
+  budget,
+  onEdit,
+  onDelete,
+}) {
+  const limit = budget.limit || 1;
   const spent = budget.spent ?? 0;
 
   const usage = (spent / limit) * 100;
 
+  const progressColor =
+    usage >= 100
+      ? "bg-negative"
+      : usage >= 80
+      ? "bg-warning"
+      : "bg-positive";
+
   return (
-    <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition">
+    <Card hover className="space-y-5">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">
+            {budget.category}
+          </h3>
 
-      <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-lg text-gray-800">
-          {budget.category}
-        </h3>
+          <p className="mt-1 text-sm text-muted">
+            Budget Limit
+          </p>
+        </div>
 
-        <div className="space-x-3 text-sm">
-          <button
-            onClick={() => onEdit(budget)}
-            className="text-blue-600 hover:underline"
+        <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
+          ₹{budget.limit.toLocaleString()}
+        </span>
+      </div>
+
+      {/* Progress */}
+      <div>
+        <div className="mb-2 flex justify-between text-sm">
+          <span className="text-muted">
+            Spent
+          </span>
+
+          <span className="font-medium text-foreground">
+            ₹{spent.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="h-2 overflow-hidden rounded-full bg-border">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+            style={{
+              width: `${Math.min(usage, 100)}%`,
+            }}
+          />
+        </div>
+
+        <div className="mt-2 flex justify-between text-xs">
+          <span className="text-subtle">
+            Remaining ₹
+            {Math.max(
+              budget.limit - spent,
+              0
+            ).toLocaleString()}
+          </span>
+
+          <span
+            className={`font-medium ${
+              usage >= 100
+                ? "text-negative"
+                : usage >= 80
+                ? "text-warning"
+                : "text-positive"
+            }`}
           >
-            Edit
-          </button>
-
-          <button
-            onClick={() => onDelete(budget._id)}
-            className="text-red-500 hover:underline"
-          >
-            Delete
-          </button>
+            {usage.toFixed(0)}%
+          </span>
         </div>
       </div>
 
-      <p className="text-gray-600 mt-1">
-        Limit: ₹{budget.limit}
-      </p>
+      {/* Footer */}
+      <div className="flex gap-3">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="flex-1"
+          onClick={() => onEdit(budget)}
+        >
+          Edit
+        </Button>
 
-      {/* PROGRESS BAR */}
-      <div className="mt-3 w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-        <div
-          className={`h-2 transition-all duration-300 ${
-            usage > 100
-              ? "bg-red-500"
-              : usage > 80
-              ? "bg-yellow-500"
-              : "bg-green-500"
-          }`}
-          style={{ width: `${Math.min(usage, 100)}%` }}
-        />
+        <Button
+          variant="danger"
+          size="sm"
+          className="flex-1"
+          onClick={() => onDelete(budget._id)}
+        >
+          Delete
+        </Button>
       </div>
-
-      <div className="flex justify-between text-xs mt-2 text-gray-500">
-        <span>Spent: ₹{spent}</span>
-        <span>{usage.toFixed(0)}%</span>
-      </div>
-    </div>
+    </Card>
   );
 }

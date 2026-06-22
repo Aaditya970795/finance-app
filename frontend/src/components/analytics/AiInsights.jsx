@@ -1,21 +1,37 @@
+import Card from "../ui/Card";
 import InsightCard from "./InsightCard";
 
 export default function AIInsights({ insights }) {
-  if (!insights) return null;
+  if (!insights) {
+    return (
+      <Card>
+        <div className="flex h-40 items-center justify-center">
+          <p className="text-sm text-subtle">
+            No AI insights available.
+          </p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">
-        AI Insights
-      </h2>
+    <Card>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-foreground">
+          AI Insights
+        </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <p className="mt-1 text-sm text-muted">
+          Personalized insights generated from your financial activity.
+        </p>
+      </div>
 
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <InsightCard
           icon="💰"
           title="Savings"
           value={`₹${insights.savings.totalSavings.toLocaleString()}`}
-          valueColor="text-green-600"
+          valueColor="text-positive"
         >
           <p>
             Income: ₹
@@ -23,7 +39,7 @@ export default function AIInsights({ insights }) {
           </p>
 
           <p>
-            Expense: ₹
+            Expenses: ₹
             {insights.savings.totalExpense.toLocaleString()}
           </p>
         </InsightCard>
@@ -31,33 +47,35 @@ export default function AIInsights({ insights }) {
         <InsightCard
           icon="📈"
           title="Expense Trend"
-          value={`${insights.expenseTrend.direction}`}
+          value={insights.expenseTrend.direction}
           valueColor={
             insights.expenseTrend.direction === "increase"
-                ? "text-red-600"
-                : "text-green-600"
-        }
+              ? "text-negative"
+              : insights.expenseTrend.direction === "decrease"
+              ? "text-positive"
+              : "text-warning"
+          }
         >
           <p>
             {insights.expenseTrend.direction === "increase"
-              ? "Expenses increased"
+              ? "Expenses increased compared to the previous period."
               : insights.expenseTrend.direction === "decrease"
-              ? "Expenses decreased"
-              : "No change"}
+              ? "Expenses decreased compared to the previous period."
+              : "No significant change detected."}
           </p>
 
-          <p>
+          <p className="mt-1">
             {insights.expenseTrend.percentage !== null
-              ? `${insights.expenseTrend.percentage}%`
-              : "No previous data"}
+              ? `${insights.expenseTrend.percentage}% change`
+              : "No previous data available"}
           </p>
         </InsightCard>
 
         <InsightCard
           icon="💸"
-          title="Top Category"
+          title="Top Spending Category"
           value={insights.topCategory.category}
-          valueColor="text-purple-600"
+          valueColor="text-accent"
         >
           <p>
             ₹
@@ -71,16 +89,19 @@ export default function AIInsights({ insights }) {
           value={insights.budgetAlert.category}
           valueColor={
             insights.budgetAlert.percentageUsed >= 90
-                ? "text-red-600"
-                : insights.budgetAlert.percentageUsed >= 75
-                ? "text-yellow-600"
-                : "text-green-600"
-        }
+              ? "text-negative"
+              : insights.budgetAlert.percentageUsed >= 75
+              ? "text-warning"
+              : "text-positive"
+          }
         >
           <p>{insights.budgetAlert.message}</p>
-        </InsightCard>
 
+          <p className="mt-1">
+            {insights.budgetAlert.percentageUsed}% of budget used
+          </p>
+        </InsightCard>
       </div>
-    </div>
+    </Card>
   );
 }

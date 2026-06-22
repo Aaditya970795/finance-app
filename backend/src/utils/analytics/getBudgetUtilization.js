@@ -4,7 +4,16 @@ const transactionModel = require("../../models/transactionModel");
 const budgetModel = require("../../models/budgetModel");
 
 const getBudgetUtilization = async (userId) => {
-    const budgets = await budgetModel.find({ userId });
+    const now = new Date();
+
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    const budgets = await budgetModel.find({
+        userId,
+        month: currentMonth,
+        year: currentYear,
+    });
 
     const budgetUtilization = await Promise.all(
         budgets.map(async (budget) => {

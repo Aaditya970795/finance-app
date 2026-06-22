@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
+
 import {
-  getBudgets,
   createBudget,
   updateBudget,
-  deleteBudget
+  deleteBudget,
 } from "../../services/budgetService";
 
-import { 
+import {
   getBudgetVsExpenses,
 } from "../../services/dashboardService";
 
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
 import BudgetCard from "../../components/budget/BudgetCard";
 import BudgetForm from "../../components/budget/BudgetForm";
 
@@ -18,30 +20,49 @@ export default function BudgetPage() {
   const [editingBudget, setEditingBudget] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  const fetchBudgets = async () => {
-    const res = await getBudgetVsExpenses();
-    setBudgets(res.data || []);
-  };
-
   useEffect(() => {
     fetchBudgets();
   }, []);
 
-  const handleAddOrUpdate = async (data) => {
-    if (editingBudget) {
-      await updateBudget(editingBudget._id, data);
-    } else {
-      await createBudget(data);
+  const fetchBudgets = async () => {
+    try {
+      const res = await getBudgetVsExpenses();
+      setBudgets(res.data || []);
+    } catch (error) {
+      console.error("Failed to fetch budgets:", error);
     }
+  };
 
-    setEditingBudget(null);
-    setShowForm(false);
-    fetchBudgets();
+  const handleAddOrUpdate = async (data) => {
+    try {
+      if (editingBudget) {
+        await updateBudget(editingBudget._id, data);
+      } else {
+        await createBudget(data);
+      }
+
+      setEditingBudget(null);
+      setShowForm(false);
+
+      await fetchBudgets();
+    } catch (error) {
+      console.error("Failed to save budget:", error);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteBudget(id);
-    fetchBudgets();
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this budget?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteBudget(id);
+      await fetchBudgets();
+    } catch (error) {
+      console.error("Failed to delete budget:", error);
+    }
   };
 
   const handleEdit = (budget) => {
@@ -50,66 +71,81 @@ export default function BudgetPage() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Budgets
+          </h1>
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Budgets
-        </h1>
+          <p className="mt-1 text-muted">
+            Manage your monthly spending limits.
+          </p>
+        </div>
 
-        <button
+        <Button
+          variant="primary"
           onClick={() => {
             setEditingBudget(null);
             setShowForm(true);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           + Add Budget
-        </button>
+        </Button>
       </div>
 
-      {/* EMPTY STATE */}
+      {/* Empty State */}
       {budgets.length === 0 && (
-        <div className="text-center text-gray-500 mt-20">
-          No budgets created yet. Start by adding one.
+        <Card className="py-16 text-center">
+          <h3 className="text-lg font-semibold text-foreground">
+            No Budgets Found
+          </h3>
+
+          <p className="mt-2 text-sm text-muted">
+            Create your first monthly budget.
+          </p>
+        </Card>
+      )}
+
+      {/* Budget Grid */}
+      {budgets.length > 0 && (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {budgets.map((budget) => (
+            <BudgetCard
+              key={budget._id}
+              budget={budget}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))}
         </div>
       )}
 
-      {/* GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {budgets.map((b) => (
-          <BudgetCard
-            key={b._id}
-            budget={b}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
-
-      {/* MODAL */}
+      {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-
-          <div className="bg-white rounded-xl w-[420px] shadow-2xl">
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <Card className="w-full max-w-md">
             <BudgetForm
               onSubmit={handleAddOrUpdate}
               editingBudget={editingBudget}
             />
 
-            <button
-              onClick={() => setShowForm(false)}
-              className="mt-3 text-sm text-gray-500"
-            >
-              Close
-            </button>
-
-          </div>
+            <div className="mt-4 flex justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setEditingBudget(null);
+                  setShowForm(false);
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
-
     </div>
   );
 }

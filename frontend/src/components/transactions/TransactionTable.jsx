@@ -1,3 +1,4 @@
+import Card from "../ui/Card";
 export default function TransactionTable({
     transactions,
     onDelete,
@@ -18,7 +19,7 @@ export default function TransactionTable({
     }
   
     return (
-      <div className="overflow-hidden rounded-xl border border-border bg-surface-raised">
+      <Card padding="none" className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead className="border-b border-border bg-surface">
@@ -117,6 +118,6 @@ export default function TransactionTable({
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     );
   }

@@ -40,7 +40,7 @@ export default function DashboardHome() {
         setSummary(summaryRes.summary || null);
 
         setCategories(
-          categoryRes.categoryBreakdown || []
+          categoryRes.data || []
         );
 
         setMonthly(

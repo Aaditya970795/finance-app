@@ -8,6 +8,7 @@ import {
 
 import TransactionTable from "../../components/transactions/TransactionTable";
 import TransactionForm from "../../components/transactions/TransactionForm";
+import Card from "../../components/ui/Card";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
@@ -127,7 +128,7 @@ export default function TransactionsPage() {
       </div>
 
       {showForm && (
-        <div className="rounded-xl border border-border bg-surface-raised p-6">
+        <Card className="space-y-4">
           <h2 className="mb-4 text-xl font-semibold text-foreground">
             {editingTransaction
               ? "Edit Transaction"
@@ -145,7 +146,7 @@ export default function TransactionsPage() {
           >
             Cancel
           </button>
-        </div>
+        </Card>
       )}
 
       <TransactionTable

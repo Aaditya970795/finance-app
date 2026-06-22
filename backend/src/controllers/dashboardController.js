@@ -3,18 +3,31 @@ const transactionModel = require('../models/transactionModel');
 const budgetModel = require('../models/budgetModel');
 
 const { getBudgetUtilization } = require('../utils/analytics/getBudgetUtilization');
+const getCurrentMonthRange = require("../utils/date/getCurrentMonthRange");
+
+const { startDate, endDate } = getCurrentMonthRange();
 
 const getDashboardSummary = async (req, res, next) => {
     try {
         const userId = req.userId;
 
         const totalIncomeResult = await transactionModel.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(userId), type: 'income' } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId),
+                date: {
+                $gte:startDate,
+                $lt:endDate
+            },
+            type: 'income' } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
 
         const totalExpensesResult = await transactionModel.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(userId), type: 'expense' } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId),
+                date:{
+                $gte:startDate,
+                $lt:endDate
+            },
+            type: 'expense' } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
 
@@ -38,7 +51,12 @@ const getCategoryBreakdown = async (req, res, next) => {
         const userId = req.userId;
 
         const categoryBreakdown = await transactionModel.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(userId), type: 'expense' } },
+            { $match: { userId: new mongoose.Types.ObjectId(userId),
+                date:{
+                    $gte:startDate,
+                    $lt:endDate
+                },
+                type: 'expense' } },
             { $group: { _id: "$category", total: { $sum: "$amount" } } },
             { $sort: { total: -1 } },
             { $project: {_id: 0, category: '$_id', total: 1} }
@@ -50,6 +68,7 @@ const getCategoryBreakdown = async (req, res, next) => {
         next(error);
     }
 };
+
 
 const getMonthlyOverview = async (req, res, next) => {
     try {

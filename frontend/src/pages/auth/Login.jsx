@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 
 import FormField from "../../components/ui/FormField";
 import axiosInstance from "../../api/axiosInstance";
+import Button from "../../components/ui/Button";
 
 function LoginBrandPanel() {
   return (
@@ -114,13 +115,13 @@ function LoginForm({
         />
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded-lg bg-brand px-4 py-3 text-sm font-semibold text-background shadow-glow transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
+        fullWidth
+        loading={isSubmitting}
       >
-        {isSubmitting ? "Signing in..." : "Sign in"}
-      </button>
+        Sign in
+      </Button>
     </form>
   );
 }
