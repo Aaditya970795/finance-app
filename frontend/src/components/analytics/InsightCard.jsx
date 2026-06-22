@@ -8,22 +8,38 @@ export default function InsightCard({
   children,
 }) {
   return (
-    <Card hover className="h-full">
-      <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface text-2xl">
+    <Card
+      hover
+      className="flex h-full min-h-[220px] flex-col border border-border"
+    >
+      {/* Header */}
+      <div className="mb-6 flex items-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl">
           {icon}
         </div>
 
-        <h3 className="text-lg font-semibold text-foreground">
-          {title}
-        </h3>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">
+            {title}
+          </h3>
+
+          <p className="text-sm text-subtle">
+            AI Generated Insight
+          </p>
+        </div>
       </div>
 
-      <p className={`mb-4 text-3xl font-bold ${valueColor}`}>
-        {value}
-      </p>
+      {/* Main Value */}
+      <div className="mb-5">
+        <p
+          className={`break-words text-3xl font-bold tracking-tight ${valueColor}`}
+        >
+          {value}
+        </p>
+      </div>
 
-      <div className="space-y-2 text-sm leading-6 text-muted">
+      {/* Details */}
+      <div className="mt-auto space-y-2 border-t border-border pt-4 text-sm leading-6 text-muted">
         {children}
       </div>
     </Card>

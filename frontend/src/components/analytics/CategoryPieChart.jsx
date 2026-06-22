@@ -8,6 +8,7 @@ import {
 } from "recharts";
 
 import Card from "../ui/Card";
+import EmptyState from "../ui/EmptyState";
 
 const COLORS = [
   "#22c55e",
@@ -28,18 +29,17 @@ export default function CategoryPieChart({ data = [] }) {
         </h2>
 
         <p className="mt-1 text-sm text-muted">
-          Distribution of expenses across different categories.
+          See how your spending is distributed across categories.
         </p>
       </div>
 
       {data.length === 0 ? (
-        <div className="flex h-[320px] items-center justify-center">
-          <p className="text-sm text-subtle">
-            No category data available.
-          </p>
-        </div>
+        <EmptyState
+          title="No Category Data"
+          description="Add some expense transactions to visualize category-wise spending."
+        />
       ) : (
-        <div className="h-[350px] w-full min-w-0">
+        <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -48,39 +48,44 @@ export default function CategoryPieChart({ data = [] }) {
                 nameKey="category"
                 cx="50%"
                 cy="50%"
+                innerRadius={55}
                 outerRadius={110}
                 paddingAngle={3}
+                animationDuration={700}
                 label={({ percent }) =>
                   `${(percent * 100).toFixed(0)}%`
                 }
               >
                 {data.map((_, index) => (
                   <Cell
-                    key={`cell-${index}`}
+                    key={index}
                     fill={COLORS[index % COLORS.length]}
                   />
                 ))}
               </Pie>
 
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#161b26",
-                  border: "1px solid #2a3347",
-                  borderRadius: "12px",
-                  color: "#f1f5f9",
-                }}
-                labelStyle={{
-                  color: "#f1f5f9",
-                }}
                 formatter={(value) => [
                   `₹${Number(value).toLocaleString()}`,
                   "Expense",
                 ]}
+                contentStyle={{
+                  backgroundColor: "#161b26",
+                  border: "1px solid #2a3347",
+                  borderRadius: "12px",
+                  color: "#f8fafc",
+                }}
+                labelStyle={{
+                  color: "#f8fafc",
+                }}
               />
 
               <Legend
+                verticalAlign="bottom"
+                height={36}
                 wrapperStyle={{
                   color: "#94a3b8",
+                  fontSize: 13,
                 }}
               />
             </PieChart>

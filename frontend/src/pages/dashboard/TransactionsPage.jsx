@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   getTransactions,
   createTransaction,
@@ -9,6 +10,7 @@ import {
 import TransactionTable from "../../components/transactions/TransactionTable";
 import TransactionForm from "../../components/transactions/TransactionForm";
 import Card from "../../components/ui/Card";
+import Loader from "../../components/ui/Loader";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
@@ -56,7 +58,11 @@ export default function TransactionsPage() {
       setEditingTransaction(null);
     } catch (error) {
       console.error(error);
-      alert("Failed to save transaction");
+    
+      toast.error(
+        error.response?.data?.error ||
+        "Failed to save transaction"
+      );
     }
   };
 
@@ -73,7 +79,11 @@ export default function TransactionsPage() {
       await fetchTransactions();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete transaction");
+    
+      toast.error(
+        error.response?.data?.error ||
+        "Failed to delete transaction"
+      );
     }
   };
 
@@ -88,11 +98,7 @@ export default function TransactionsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="text-white">
-        Loading transactions...
-      </div>
-    );
+    return <Loader variant="transactions" />;
   }
 
   if (error) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   createBudget,
@@ -6,34 +6,58 @@ import {
   deleteBudget,
 } from "../../services/budgetService";
 
-import {
-  getBudgetVsExpenses,
-} from "../../services/dashboardService";
+import { getBudgetVsExpenses } from "../../services/dashboardService";
 
-import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import EmptyState from "../../components/ui/EmptyState";
+
 import BudgetCard from "../../components/budget/BudgetCard";
 import BudgetForm from "../../components/budget/BudgetForm";
 
+import Loader from "../../components/ui/Loader";
+
 export default function BudgetPage() {
   const [budgets, setBudgets] = useState([]);
-  const [editingBudget, setEditingBudget] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [showForm, setShowForm] = useState(false);
+  const [editingBudget, setEditingBudget] = useState(null);
 
-  useEffect(() => {
-    fetchBudgets();
-  }, []);
-
-  const fetchBudgets = async () => {
+  const fetchBudgets = useCallback(async () => {
     try {
+      setLoading(true);
+
       const res = await getBudgetVsExpenses();
+
       setBudgets(res.data || []);
     } catch (error) {
       console.error("Failed to fetch budgets:", error);
+    } finally {
+      setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchBudgets();
+  }, [fetchBudgets]);
+
+  const handleAddBudget = () => {
+    setEditingBudget(null);
+    setShowForm(true);
   };
 
-  const handleAddOrUpdate = async (data) => {
+  const handleEditBudget = (budget) => {
+    setEditingBudget(budget);
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setEditingBudget(null);
+    setShowForm(false);
+  };
+
+  const handleSubmit = async (data) => {
     try {
       if (editingBudget) {
         await updateBudget(editingBudget._id, data);
@@ -41,9 +65,7 @@ export default function BudgetPage() {
         await createBudget(data);
       }
 
-      setEditingBudget(null);
-      setShowForm(false);
-
+      handleCancel();
       await fetchBudgets();
     } catch (error) {
       console.error("Failed to save budget:", error);
@@ -65,14 +87,15 @@ export default function BudgetPage() {
     }
   };
 
-  const handleEdit = (budget) => {
-    setEditingBudget(budget);
-    setShowForm(true);
-  };
+  if (loading) {
+    return <Loader variant="budget" />;
+  }
 
   return (
     <div className="space-y-6">
+
       {/* Header */}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
@@ -86,64 +109,56 @@ export default function BudgetPage() {
 
         <Button
           variant="primary"
-          onClick={() => {
-            setEditingBudget(null);
-            setShowForm(true);
-          }}
+          onClick={handleAddBudget}
         >
           + Add Budget
         </Button>
       </div>
 
-      {/* Empty State */}
-      {budgets.length === 0 && (
-        <Card className="py-16 text-center">
-          <h3 className="text-lg font-semibold text-foreground">
-            No Budgets Found
-          </h3>
+      {/* Form */}
 
-          <p className="mt-2 text-sm text-muted">
-            Create your first monthly budget.
-          </p>
+      {showForm && (
+        <Card className="space-y-4">
+          <h2 className="text-xl font-semibold text-foreground">
+            {editingBudget
+              ? "Edit Budget"
+              : "Create Budget"}
+          </h2>
+
+          <BudgetForm
+            editingBudget={editingBudget}
+            onSubmit={handleSubmit}
+          />
+
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+          </div>
         </Card>
       )}
 
-      {/* Budget Grid */}
-      {budgets.length > 0 && (
+      {/* Content */}
+
+      {budgets.length === 0 ? (
+        <EmptyState
+          title="No Budgets Found"
+          description="Create your first monthly budget."
+        />
+      ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {budgets.map((budget) => (
             <BudgetCard
               key={budget._id}
               budget={budget}
-              onEdit={handleEdit}
+              onEdit={handleEditBudget}
               onDelete={handleDelete}
             />
           ))}
-        </div>
-      )}
-
-      {/* Modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <Card className="w-full max-w-md">
-            <BudgetForm
-              onSubmit={handleAddOrUpdate}
-              editingBudget={editingBudget}
-            />
-
-            <div className="mt-4 flex justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setEditingBudget(null);
-                  setShowForm(false);
-                }}
-              >
-                Close
-              </Button>
-            </div>
-          </Card>
         </div>
       )}
     </div>

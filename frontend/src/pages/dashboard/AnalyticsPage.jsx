@@ -14,6 +14,7 @@ import IncomeExpenseChart from "../../components/analytics/IncomeExpenseChart";
 import CategoryPieChart from "../../components/analytics/CategoryPieChart";
 import BudgetUtilizationCards from "../../components/analytics/BudgetUtilizationCards";
 import AIInsights from "../../components/analytics/AIInsights";
+import Loader from "../../components/ui/Loader";
 
 export default function AnalyticsPage() {
   const [monthlyTrend, setMonthlyTrend] = useState([]);
@@ -60,26 +61,10 @@ export default function AnalyticsPage() {
   }, [range]);
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-10 w-72 animate-pulse rounded-lg bg-surface-raised" />
-
-        <div className="h-80 animate-pulse rounded-xl bg-surface-raised" />
-
-        <div className="h-80 animate-pulse rounded-xl bg-surface-raised" />
-
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <div className="h-96 animate-pulse rounded-xl bg-surface-raised" />
-          <div className="h-96 animate-pulse rounded-xl bg-surface-raised" />
-        </div>
-
-        <div className="h-72 animate-pulse rounded-xl bg-surface-raised" />
-      </div>
-    );
+    return <Loader variant="analytics" />;
   }
 
   return (
-    
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

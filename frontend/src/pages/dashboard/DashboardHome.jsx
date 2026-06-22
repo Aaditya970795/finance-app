@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   getDashboardSummary,
   getCategoryBreakdown,
@@ -11,6 +12,7 @@ import BudgetProgress from "../../components/dashboard/BudgetProgress";
 import CategoryChart from "../../components/dashboard/CategoryChart";
 import MonthlyChart from "../../components/dashboard/MonthlyChart";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
+import Loader from "../../components/ui/Loader";
 
 export default function DashboardHome() {
   const [summary, setSummary] = useState(null);
@@ -21,67 +23,68 @@ export default function DashboardHome() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const [
-          summaryRes,
-          categoryRes,
-          monthlyRes,
-          budgetRes,
-        ] = await Promise.all([
-          getDashboardSummary(),
-          getCategoryBreakdown(),
-          getMonthlyOverview(),
-          getBudgetVsExpenses(),
-        ]);
-
-        setSummary(summaryRes.summary || null);
-
-        setCategories(
-          categoryRes.data || []
-        );
-
-        setMonthly(
-          monthlyRes.data || []
-        );
-
-        setBudgets(
-          budgetRes.data || []
-        );
-
-      } catch (err) {
-        console.error("Dashboard error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchDashboard();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        Loading dashboard...
-      </div>
-    );
-  }
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
 
+      const [
+        summaryRes,
+        categoryRes,
+        monthlyRes,
+        budgetRes,
+      ] = await Promise.all([
+        getDashboardSummary(),
+        getCategoryBreakdown(),
+        getMonthlyOverview(),
+        getBudgetVsExpenses(),
+      ]);
+
+      setSummary(summaryRes.summary ?? null);
+      setCategories(categoryRes.data ?? []);
+      setMonthly(monthlyRes.data ?? []);
+      setBudgets(budgetRes.data ?? []);
+    } catch (error) {
+      console.error("Dashboard Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <Loader variant="dashboard" />;
+  }
+  
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">
+          Dashboard
+        </h1>
+
+        <p className="mt-1 text-muted">
+          Get a complete overview of your financial health.
+        </p>
+      </div>
+
+      {/* Summary */}
       <StatCards summary={summary} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Budget + Category */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <BudgetProgress budgets={budgets} />
         <CategoryChart data={categories} />
       </div>
 
+      {/* Monthly Overview */}
       <MonthlyChart data={monthly} />
 
+      {/* Recent Transactions */}
       <RecentTransactions
-        transactions={summary?.recentTransactions || []}
+        transactions={summary?.recentTransactions ?? []}
       />
     </div>
   );

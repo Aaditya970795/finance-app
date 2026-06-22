@@ -2,7 +2,7 @@ import { cn } from "../../utils/cn";
 import Spinner from "./Spinner";
 
 const variants = {
-    primary:
+  primary:
     "bg-brand text-background shadow-glow hover:bg-brand-hover",
 
   secondary:
@@ -13,8 +13,8 @@ const variants = {
 
   outline:
     "border border-border bg-transparent text-foreground hover:bg-muted",
-  
-    ghost:
+
+  ghost:
     "bg-transparent text-muted hover:bg-surface-hover",
 };
 
@@ -31,9 +31,11 @@ export default function Button({
   loading = false,
   disabled = false,
   fullWidth = false,
-  className,
+  className = "",
   type = "button",
   onClick,
+  icon,
+  ...props
 }) {
   return (
     <button
@@ -42,24 +44,33 @@ export default function Button({
       disabled={disabled || loading}
       className={cn(
         "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200",
-        "focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed",
-        variants[variant],
-        sizes[size],
+        "focus:outline-none focus:ring-2 focus:ring-brand/20",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        variants[variant] || variants.primary,
+        sizes[size] || sizes.md,
         fullWidth && "w-full",
         className
       )}
+      {...props}
     >
       {loading ? (
         <>
-            <Spinner
+          <Spinner
             size="sm"
-            className="mr-2 text-current"
-            />
-            Loading...
+            className="mr-2"
+          />
+          {children}
         </>
-        ) : (
-        children
-    )}
+      ) : (
+        <>
+          {icon && (
+            <span className="mr-2 flex items-center">
+              {icon}
+            </span>
+          )}
+          {children}
+        </>
+      )}
     </button>
   );
 }

@@ -1,51 +1,87 @@
 import Card from "../ui/Card";
+import EmptyState from "../ui/EmptyState";
 
 export default function BudgetProgress({ budgets = [] }) {
-  console.log("Budgets:", budgets);
+  if (budgets.length === 0) {
+    return (
+      <Card>
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-foreground">
+            Budget Progress
+          </h2>
+
+          <p className="mt-1 text-sm text-muted">
+            Monitor how much of your monthly budget has been used.
+          </p>
+        </div>
+
+        <EmptyState
+          title="No Budgets Found"
+          description="Create a budget to start tracking your spending."
+        />
+      </Card>
+    );
+  }
+
   return (
     <Card>
-      <h2 className="mb-5 text-lg font-bold text-foreground">
-        Budget Progress
-      </h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-foreground">
+          Budget Progress
+        </h2>
 
-      {budgets.length === 0 ? (
-        <p className="text-sm text-subtle">
-        No budget data available
+        <p className="mt-1 text-sm text-muted">
+          Monitor how much of your monthly budget has been used.
         </p>
-      ) : (
-        budgets.map((b) => (
-          <div key={b.category} className="mb-5">
-            <div className="mb-1 flex items-center justify-between">
-              <span className="font-medium text-foreground">
-                {b.category}
-              </span>
+      </div>
 
-              <span className="text-sm text-muted">
-                ₹{b.spent} / ₹{b.budget}
-              </span>
+      <div className="space-y-6">
+        {budgets.map((budget) => {
+          const percentage = Math.min(
+            Number(budget.percentageUsed || 0),
+            100
+          );
+
+          const progressColor =
+            percentage >= 100
+              ? "bg-negative"
+              : percentage >= 80
+              ? "bg-warning"
+              : "bg-positive";
+
+          return (
+            <div key={budget.category}>
+              {/* Header */}
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-foreground">
+                    {budget.category}
+                  </h3>
+
+                  <p className="text-xs text-subtle">
+                    ₹{Number(budget.spent).toLocaleString()} of ₹
+                    {Number(budget.budget).toLocaleString()}
+                  </p>
+                </div>
+
+                <span className="text-sm font-semibold text-muted">
+                  {percentage.toFixed(1)}%
+                </span>
+              </div>
+
+              {/* Progress */}
+              <div className="h-3 w-full overflow-hidden rounded-full bg-border">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
+                  style={{
+                    width: `${percentage}%`,
+                  }}
+                />
+              </div>
             </div>
-
-            <div className="h-2 w-full overflow-hidden rounded-full bg-border">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  b.percentageUsed > 80
-                    ? "bg-negative"
-                    : b.percentageUsed > 50
-                    ? "bg-warning"
-                    : "bg-positive"
-                }`}
-                style={{
-                  width: `${b.percentageUsed ?? 0}%`,
-                }}
-              />
-            </div>
-
-            <p className="mt-1 text-xs text-subtle">
-              {b.percentageUsed ?? 0}% used
-            </p>
-          </div>
-        ))
-      )}
+          );
+        })}
+      </div>
     </Card>
   );
 }
