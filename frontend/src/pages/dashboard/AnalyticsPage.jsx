@@ -18,6 +18,7 @@ import AIInsights from "../../components/analytics/AIInsights";
 import {
   Loader,
   Select,
+  ErrorState,
 } from "../../components/ui";
 
 export default function AnalyticsPage() {
@@ -29,6 +30,7 @@ export default function AnalyticsPage() {
 
   const [range, setRange] = useState("12m");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchAnalytics = async () => {
     try {
@@ -53,7 +55,10 @@ export default function AnalyticsPage() {
       setCategories(categoryRes.data || []);
       setBudgetUtilization(budgetRes.data || []);
       setInsights(insightsRes.data || null);
+
+      setError("");
     } catch (error) {
+      setError("Failed to load analytics");
       showErrorToast(error);
     } finally {
       setLoading(false);
@@ -66,6 +71,16 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return <Loader variant="analytics" />;
+  }
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Unable to load analytics"
+        description={error}
+        onRetry={fetchAnalytics}
+      />
+    );
   }
 
   return (

@@ -12,7 +12,10 @@ import BudgetProgress from "../../components/dashboard/BudgetProgress";
 import CategoryChart from "../../components/dashboard/CategoryChart";
 import MonthlyChart from "../../components/dashboard/MonthlyChart";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
-import { Loader } from "../../components/ui";
+import {
+  Loader,
+  ErrorState,
+} from "../../components/ui";
 
 export default function DashboardHome() {
   const [summary, setSummary] = useState(null);
@@ -21,6 +24,7 @@ export default function DashboardHome() {
   const [budgets, setBudgets] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchDashboard();
@@ -46,7 +50,10 @@ export default function DashboardHome() {
       setCategories(categoryRes.data ?? []);
       setMonthly(monthlyRes.data ?? []);
       setBudgets(budgetRes.data ?? []);
+
+      setError("");
     } catch (error) {
+      setError("Failed to load dashboard");
       showErrorToast(error);
     } finally {
       setLoading(false);
@@ -56,7 +63,17 @@ export default function DashboardHome() {
   if (loading) {
     return <Loader variant="dashboard" />;
   }
-  
+
+  if (error) {
+    return (
+      <ErrorState
+        title="Unable to load dashboard"
+        description={error}
+        onRetry={fetchDashboard}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -70,19 +87,15 @@ export default function DashboardHome() {
         </p>
       </div>
 
-      {/* Summary */}
       <StatCards summary={summary} />
 
-      {/* Budget + Category */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <BudgetProgress budgets={budgets} />
         <CategoryChart data={categories} />
       </div>
 
-      {/* Monthly Overview */}
       <MonthlyChart data={monthly} />
 
-      {/* Recent Transactions */}
       <RecentTransactions
         transactions={summary?.recentTransactions ?? []}
       />

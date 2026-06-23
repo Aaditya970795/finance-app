@@ -10,19 +10,30 @@ import {
 
 import { getBudgetVsExpenses } from "../../services/dashboardService";
 
-import { Card, Button, EmptyState, Loader } from "../../components/ui";
+import {
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  Loader,
+  Modal,
+} from "../../components/ui";
 
 import BudgetCard from "../../components/budget/BudgetCard";
 import BudgetForm from "../../components/budget/BudgetForm";
 
-
-
 export default function BudgetPage() {
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [showForm, setShowForm] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
+
+  const [showDeleteModal, setShowDeleteModal] =
+    useState(false);
+  const [budgetToDelete, setBudgetToDelete] =
+    useState(null);
 
   const fetchBudgets = useCallback(async () => {
     try {
@@ -31,7 +42,9 @@ export default function BudgetPage() {
       const res = await getBudgetVsExpenses();
 
       setBudgets(res.data || []);
+      setError("");
     } catch (error) {
+      setError("Failed to load budgets");
       showErrorToast(error);
     } finally {
       setLoading(false);
@@ -61,14 +74,14 @@ export default function BudgetPage() {
     try {
       if (editingBudget) {
         await updateBudget(editingBudget._id, data);
-      
+
         toast.success("Budget updated successfully");
       } else {
         await createBudget(data);
-      
+
         toast.success("Budget created successfully");
       }
-      
+
       handleCancel();
       await fetchBudgets();
     } catch (error) {
@@ -76,19 +89,25 @@ export default function BudgetPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this budget?"
-    );
+  const handleDeleteClick = (id) => {
+    setBudgetToDelete(id);
+    setShowDeleteModal(true);
+  };
 
-    if (!confirmed) return;
+  const confirmDeleteBudget = async () => {
+    if (!budgetToDelete) return;
 
     try {
-      await deleteBudget(id);
+      await deleteBudget(budgetToDelete);
+
       toast.success("Budget deleted successfully");
+
       await fetchBudgets();
     } catch (error) {
       showErrorToast(error);
+    } finally {
+      setShowDeleteModal(false);
+      setBudgetToDelete(null);
     }
   };
 
@@ -96,76 +115,121 @@ export default function BudgetPage() {
     return <Loader variant="budget" />;
   }
 
+  if (error) {
+    return (
+      <ErrorState
+        title="Unable to load budgets"
+        description={error}
+        onRetry={fetchBudgets}
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6">
+        {/* Header */}
 
-      {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              Budgets
+            </h1>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Budgets
-          </h1>
+            <p className="mt-1 text-muted">
+              Manage your monthly spending
+              limits.
+            </p>
+          </div>
 
-          <p className="mt-1 text-muted">
-            Manage your monthly spending limits.
-          </p>
+          <Button onClick={handleAddBudget}>
+            + Add Budget
+          </Button>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={handleAddBudget}
-        >
-          + Add Budget
-        </Button>
+        {/* Form */}
+
+        {showForm && (
+          <Card className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">
+              {editingBudget
+                ? "Edit Budget"
+                : "Create Budget"}
+            </h2>
+
+            <BudgetForm
+              editingBudget={editingBudget}
+              onSubmit={handleSubmit}
+            />
+
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Content */}
+
+        {budgets.length === 0 ? (
+          <EmptyState
+            title="No Budgets Found"
+            description="Create your first monthly budget."
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {budgets.map((budget) => (
+              <BudgetCard
+                key={budget._id}
+                budget={budget}
+                onEdit={handleEditBudget}
+                onDelete={handleDeleteClick}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Form */}
+      {/* Delete Confirmation */}
 
-      {showForm && (
-        <Card className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">
-            {editingBudget
-              ? "Edit Budget"
-              : "Create Budget"}
-          </h2>
+      <Modal
+        open={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setBudgetToDelete(null);
+        }}
+        title="Delete Budget"
+        size="sm"
+      >
+        <p className="text-muted">
+          Are you sure you want to delete this
+          budget? This action cannot be undone.
+        </p>
 
-          <BudgetForm
-            editingBudget={editingBudget}
-            onSubmit={handleSubmit}
-          />
+        <div className="mt-6 flex justify-end gap-3">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setShowDeleteModal(false);
+              setBudgetToDelete(null);
+            }}
+          >
+            Cancel
+          </Button>
 
-          <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* Content */}
-
-      {budgets.length === 0 ? (
-        <EmptyState
-          title="No Budgets Found"
-          description="Create your first monthly budget."
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {budgets.map((budget) => (
-            <BudgetCard
-              key={budget._id}
-              budget={budget}
-              onEdit={handleEditBudget}
-              onDelete={handleDelete}
-            />
-          ))}
+          <Button
+            variant="danger"
+            onClick={confirmDeleteBudget}
+          >
+            Delete
+          </Button>
         </div>
-      )}
-    </div>
+      </Modal>
+    </>
   );
 }
