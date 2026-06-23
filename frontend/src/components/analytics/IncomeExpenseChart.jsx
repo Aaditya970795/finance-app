@@ -9,8 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import Card from "../ui/Card";
-import EmptyState from "../ui/EmptyState";
+import { Card, EmptyState } from "../ui";
 
 export default function IncomeExpenseChart({ data = [] }) {
   const chartData = data.map((item) => ({

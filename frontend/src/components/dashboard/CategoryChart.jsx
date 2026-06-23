@@ -7,7 +7,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import Card from "../ui/Card";
+import { Card } from "../ui";
 
 const COLORS = [
   "#22c55e",

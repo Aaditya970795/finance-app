@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../context/AuthContext";
 
-import FormField from "../../components/ui/FormField";
+import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
-import Button from "../../components/ui/Button";
+
+import { Button, Input } from "../../components/ui";
 
 function LoginBrandPanel() {
   return (
     <div className="relative hidden overflow-hidden rounded-2xl border border-border bg-surface-raised p-10 lg:flex lg:flex-col lg:justify-between">
       <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
+
       <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accent/10 blur-3xl" />
 
       <div className="relative">
@@ -22,7 +23,6 @@ function LoginBrandPanel() {
             stroke="currentColor"
             strokeWidth="1.75"
             className="h-6 w-6"
-            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -36,16 +36,22 @@ function LoginBrandPanel() {
           FinanceAI
         </h1>
 
-        <p className="mt-3 max-w-sm text-muted leading-relaxed">
-          Manage portfolios, track spending, and get AI-powered insights — all
-          in one secure dashboard.
+        <p className="mt-3 max-w-sm leading-relaxed text-muted">
+          Manage portfolios, track spending, and get AI-powered insights —
+          all in one secure dashboard.
         </p>
       </div>
 
       <div className="relative mt-10 grid gap-4 sm:grid-cols-2">
         {[
-          { label: "Real-time analytics", value: "Live" },
-          { label: "Bank-grade security", value: "256-bit" },
+          {
+            label: "Real-time analytics",
+            value: "Live",
+          },
+          {
+            label: "Bank-grade security",
+            value: "256-bit",
+          },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -72,9 +78,11 @@ function LoginForm({
   handleChange,
 }) {
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <FormField
-        id="email"
+    <form
+      onSubmit={onSubmit}
+      className="space-y-5"
+    >
+      <Input
         label="Email"
         type="email"
         name="email"
@@ -85,12 +93,9 @@ function LoginForm({
         required
       />
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium text-foreground"
-          >
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-sm font-medium text-foreground">
             Password
           </label>
 
@@ -102,8 +107,7 @@ function LoginForm({
           </Link>
         </div>
 
-        <input
-          id="password"
+        <Input
           type="password"
           name="password"
           value={formData.password}
@@ -111,7 +115,6 @@ function LoginForm({
           placeholder="Enter your password"
           autoComplete="current-password"
           required
-          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-subtle transition outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         />
       </div>
 
@@ -120,7 +123,7 @@ function LoginForm({
         fullWidth
         loading={isSubmitting}
       >
-        Sign in
+        Sign In
       </Button>
     </form>
   );
@@ -129,24 +132,25 @@ function LoginForm({
 export default function Login() {
   const { login } = useAuth();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const navigate = useNavigate();
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     try {
       setIsSubmitting(true);
@@ -161,11 +165,10 @@ export default function Login() {
       toast.success("Login successful");
 
       navigate("/dashboard");
-
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-        "Login failed"
+        error.response?.data?.message ??
+          "Login failed"
       );
     } finally {
       setIsSubmitting(false);
@@ -175,7 +178,7 @@ export default function Login() {
   return (
     <div className="relative min-h-screen bg-background px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-brand/5 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-brand/5 blur-3xl" />
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-5xl items-center">
@@ -192,7 +195,6 @@ export default function Login() {
                   stroke="currentColor"
                   strokeWidth="1.75"
                   className="h-5 w-5"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -218,7 +220,7 @@ export default function Login() {
                 </h2>
 
                 <p className="mt-1 text-sm text-muted">
-                  Enter your credentials to access your account
+                  Enter your credentials to access your account.
                 </p>
               </div>
 
@@ -230,7 +232,7 @@ export default function Login() {
               />
 
               <p className="mt-6 text-center text-sm text-muted">
-                Don&apos;t have an account?{" "}
+                Don't have an account?{" "}
                 <Link
                   to="/register"
                   className="font-medium text-brand transition hover:text-brand-hover"

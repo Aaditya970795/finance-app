@@ -9,8 +9,8 @@ import {
 
 import TransactionTable from "../../components/transactions/TransactionTable";
 import TransactionForm from "../../components/transactions/TransactionForm";
-import Card from "../../components/ui/Card";
-import Loader from "../../components/ui/Loader";
+
+import { Card, Loader } from "../../components/ui";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);

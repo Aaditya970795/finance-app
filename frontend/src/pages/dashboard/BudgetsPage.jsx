@@ -8,14 +8,12 @@ import {
 
 import { getBudgetVsExpenses } from "../../services/dashboardService";
 
-import Button from "../../components/ui/Button";
-import Card from "../../components/ui/Card";
-import EmptyState from "../../components/ui/EmptyState";
+import { Card, Button, EmptyState, Loader } from "../../components/ui";
 
 import BudgetCard from "../../components/budget/BudgetCard";
 import BudgetForm from "../../components/budget/BudgetForm";
 
-import Loader from "../../components/ui/Loader";
+
 
 export default function BudgetPage() {
   const [budgets, setBudgets] = useState([]);

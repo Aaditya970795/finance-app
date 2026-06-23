@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import FormField from "../../components/ui/FormField";
 import axiosInstance from "../../api/axiosInstance";
+import { Button, Input } from "../../components/ui";
 
 function RegisterBrandPanel() {
   return (
@@ -20,7 +20,6 @@ function RegisterBrandPanel() {
             stroke="currentColor"
             strokeWidth="1.75"
             className="h-6 w-6"
-            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -34,7 +33,7 @@ function RegisterBrandPanel() {
           FinanceAI
         </h1>
 
-        <p className="mt-3 max-w-sm text-muted leading-relaxed">
+        <p className="mt-3 max-w-sm leading-relaxed text-muted">
           Create your account and start managing portfolios, tracking spending,
           and unlocking AI-powered financial insights.
         </p>
@@ -42,8 +41,14 @@ function RegisterBrandPanel() {
 
       <div className="relative mt-10 grid gap-4 sm:grid-cols-2">
         {[
-          { label: "Free to start", value: "$0" },
-          { label: "Setup time", value: "< 2 min" },
+          {
+            label: "Free to start",
+            value: "$0",
+          },
+          {
+            label: "Setup time",
+            value: "&lt; 2 min",
+          },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -70,9 +75,11 @@ function RegisterForm({
   handleChange,
 }) {
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <FormField
-        id="username"
+    <form
+      onSubmit={onSubmit}
+      className="space-y-5"
+    >
+      <Input
         label="Username"
         type="text"
         name="username"
@@ -83,8 +90,7 @@ function RegisterForm({
         required
       />
 
-      <FormField
-        id="email"
+      <Input
         label="Email"
         type="email"
         name="email"
@@ -95,8 +101,7 @@ function RegisterForm({
         required
       />
 
-      <FormField
-        id="password"
+      <Input
         label="Password"
         type="password"
         name="password"
@@ -107,9 +112,8 @@ function RegisterForm({
         required
       />
 
-      <FormField
-        id="confirmPassword"
-        label="Confirm password"
+      <Input
+        label="Confirm Password"
         type="password"
         name="confirmPassword"
         value={formData.confirmPassword}
@@ -119,19 +123,22 @@ function RegisterForm({
         required
       />
 
-      <button
+      <Button
         type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded-lg bg-brand px-4 py-3 text-sm font-semibold text-background shadow-glow transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60"
+        fullWidth
+        loading={isSubmitting}
       >
-        {isSubmitting ? "Creating account..." : "Create account"}
-      </button>
+        Create Account
+      </Button>
     </form>
   );
 }
 
 export default function Register() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -140,17 +147,15 @@ export default function Register() {
     confirmPassword: "",
   });
 
-  const navigate = useNavigate();
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -169,13 +174,11 @@ export default function Register() {
       toast.success("Account created successfully");
 
       navigate("/");
-
     } catch (error) {
-      console.log(error.response?.data);
-
       toast.error(
-        error.response?.data?.error ||
-        "Registration failed"
+        error.response?.data?.message ??
+          error.response?.data?.error ??
+          "Registration failed"
       );
     } finally {
       setIsSubmitting(false);
@@ -185,7 +188,7 @@ export default function Register() {
   return (
     <div className="relative min-h-screen bg-background px-4 py-10 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-brand/5 blur-3xl" />
+        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-brand/5 blur-3xl" />
       </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-5xl items-center">
@@ -202,7 +205,6 @@ export default function Register() {
                   stroke="currentColor"
                   strokeWidth="1.75"
                   className="h-5 w-5"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -228,7 +230,7 @@ export default function Register() {
                 </h2>
 
                 <p className="mt-1 text-sm text-muted">
-                  Fill in your details to create a new account
+                  Fill in your details to create a new account.
                 </p>
               </div>
 
@@ -245,7 +247,7 @@ export default function Register() {
                   to="/"
                   className="font-medium text-brand transition hover:text-brand-hover"
                 >
-                  Sign in
+                  Sign In
                 </Link>
               </p>
             </div>

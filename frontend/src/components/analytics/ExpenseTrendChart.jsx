@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import Card from "../ui/Card";
+import { Card} from "../ui";
 
 export default function ExpenseTrendChart({ data = [] }) {
   const chartData = data.map((item) => ({

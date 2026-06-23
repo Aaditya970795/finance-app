@@ -12,7 +12,7 @@ import BudgetProgress from "../../components/dashboard/BudgetProgress";
 import CategoryChart from "../../components/dashboard/CategoryChart";
 import MonthlyChart from "../../components/dashboard/MonthlyChart";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
-import Loader from "../../components/ui/Loader";
+import { Loader } from "../../components/ui";
 
 export default function DashboardHome() {
   const [summary, setSummary] = useState(null);

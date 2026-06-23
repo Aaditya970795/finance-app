@@ -1,7 +1,4 @@
-import Card from "../ui/Card";
-import Button from "../ui/Button";
-import EmptyState from "../ui/EmptyState";
-
+import { Card, Button, EmptyState } from "../ui";
 export default function TransactionTable({
   transactions,
   onDelete,

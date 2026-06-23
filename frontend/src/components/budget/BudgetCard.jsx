@@ -1,5 +1,4 @@
-import Card from "../ui/Card";
-import Button from "../ui/Button";
+import { Card, Button } from "../ui";
 
 export default function BudgetCard({
   budget,

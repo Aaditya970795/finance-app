@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import Button from "../ui/Button";
+import { Button, Input } from "../ui";
 
 export default function BudgetForm({
   onSubmit,
@@ -48,43 +48,27 @@ export default function BudgetForm({
       onSubmit={handleSubmit}
       className="space-y-6"
     >
-    
-      {/* Category */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">
-          Category
-        </label>
+      <Input
+        label="Category"
+        type="text"
+        name="category"
+        value={form.category}
+        onChange={handleChange}
+        placeholder="Food, Travel, Shopping..."
+        required
+      />
 
-        <input
-          type="text"
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          placeholder="Food, Travel, Shopping..."
-          required
-          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder:text-subtle focus:border-brand focus:outline-none"
-        />
-      </div>
+      <Input
+        label="Budget Limit"
+        type="number"
+        name="limit"
+        value={form.limit}
+        onChange={handleChange}
+        placeholder="5000"
+        min={1}
+        required
+      />
 
-      {/* Budget */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">
-          Budget Limit
-        </label>
-
-        <input
-          type="number"
-          name="limit"
-          value={form.limit}
-          onChange={handleChange}
-          placeholder="5000"
-          required
-          min="1"
-          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder:text-subtle focus:border-brand focus:outline-none"
-        />
-      </div>
-
-      {/* Month & Year */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="mb-2 block text-sm font-medium text-foreground">
@@ -95,17 +79,14 @@ export default function BudgetForm({
             name="month"
             value={form.month}
             onChange={handleChange}
-            className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground focus:border-brand focus:outline-none"
+            className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
           >
             {Array.from({ length: 12 }, (_, i) => (
               <option
                 key={i + 1}
                 value={i + 1}
               >
-                {new Date(
-                  0,
-                  i
-                ).toLocaleString("default", {
+                {new Date(0, i).toLocaleString("default", {
                   month: "long",
                 })}
               </option>
@@ -113,27 +94,20 @@ export default function BudgetForm({
           </select>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">
-            Year
-          </label>
-
-          <input
-            type="number"
-            name="year"
-            value={form.year}
-            onChange={handleChange}
-            min="2024"
-            required
-            className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground focus:border-brand focus:outline-none"
-          />
-        </div>
+        <Input
+          label="Year"
+          type="number"
+          name="year"
+          value={form.year}
+          onChange={handleChange}
+          min={2024}
+          required
+        />
       </div>
 
       <Button
         type="submit"
-        variant="primary"
-        className="w-full"
+        fullWidth
       >
         {editingBudget
           ? "Update Budget"

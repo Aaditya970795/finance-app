@@ -1,5 +1,4 @@
-import Card from "../ui/Card";
-import EmptyState from "../ui/EmptyState";
+import { Card, EmptyState } from "../ui";
 
 export default function RecentTransactions({
   transactions = [],

@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 
+import { Button, Input } from "../ui";
+
 export default function TransactionForm({
   onSubmit,
   initialData = null,
 }) {
-  const [formData, setFormData] = useState({
+  const defaultForm = {
     amount: "",
     type: "expense",
     category: "",
     note: "",
     date: new Date().toISOString().split("T")[0],
-  });
+  };
+
+  const [formData, setFormData] = useState(defaultForm);
 
   useEffect(() => {
     if (initialData) {
@@ -21,8 +25,10 @@ export default function TransactionForm({
         note: initialData.note || "",
         date: initialData.date
           ? initialData.date.split("T")[0]
-          : new Date().toISOString().split("T")[0],
+          : defaultForm.date,
       });
+    } else {
+      setFormData(defaultForm);
     }
   }, [initialData]);
 
@@ -35,69 +41,86 @@ export default function TransactionForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     onSubmit(formData);
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4"
+      className="space-y-6"
     >
-      <input
+      <Input
+        label="Amount"
         type="number"
         name="amount"
-        placeholder="Amount"
         value={formData.amount}
         onChange={handleChange}
+        placeholder="Enter amount"
         required
-        className="w-full rounded-lg border border-border bg-surface p-3"
       />
 
-      <select
-        name="type"
-        value={formData.type}
-        onChange={handleChange}
-        className="w-full rounded-lg border border-border bg-surface p-3"
-      >
-        <option value="expense">Expense</option>
-        <option value="income">Income</option>
-      </select>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-foreground">
+          Type
+        </label>
 
-      <input
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+        >
+          <option value="expense">
+            Expense
+          </option>
+
+          <option value="income">
+            Income
+          </option>
+        </select>
+      </div>
+
+      <Input
+        label="Category"
         type="text"
         name="category"
-        placeholder="Category"
         value={formData.category}
         onChange={handleChange}
+        placeholder="Food, Salary, Shopping..."
         required
-        className="w-full rounded-lg border border-border bg-surface p-3"
       />
 
-      <input
+      <Input
+        label="Date"
         type="date"
         name="date"
         value={formData.date}
         onChange={handleChange}
-        className="w-full rounded-lg border border-border bg-surface p-3"
       />
 
-      <textarea
-        name="note"
-        placeholder="Note"
-        value={formData.note}
-        onChange={handleChange}
-        className="w-full rounded-lg border border-border bg-surface p-3"
-      />
+      <div>
+        <label className="mb-2 block text-sm font-medium text-foreground">
+          Note
+        </label>
 
-      <button
+        <textarea
+          name="note"
+          value={formData.note}
+          onChange={handleChange}
+          rows={4}
+          placeholder="Optional note..."
+          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder:text-subtle transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+        />
+      </div>
+
+      <Button
         type="submit"
-        className="rounded-lg bg-brand px-4 py-2 text-white"
+        fullWidth
       >
         {initialData
           ? "Update Transaction"
           : "Save Transaction"}
-      </button>
+      </Button>
     </form>
   );
 }

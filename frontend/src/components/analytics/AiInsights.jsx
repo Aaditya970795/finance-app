@@ -1,5 +1,4 @@
-import Card from "../ui/Card";
-import EmptyState from "../ui/EmptyState";
+import { Card, EmptyState } from "../ui";
 import InsightCard from "./InsightCard";
 
 export default function AIInsights({ insights }) {
