@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { showErrorToast } from "../../utils/showErrorToast";
 import { getBudgetVsExpenses } from "../../services/dashboardService";
 
 import {
@@ -14,7 +14,11 @@ import IncomeExpenseChart from "../../components/analytics/IncomeExpenseChart";
 import CategoryPieChart from "../../components/analytics/CategoryPieChart";
 import BudgetUtilizationCards from "../../components/analytics/BudgetUtilizationCards";
 import AIInsights from "../../components/analytics/AIInsights";
-import Loader from "../../components/ui/Loader";
+
+import {
+  Loader,
+  Select,
+} from "../../components/ui";
 
 export default function AnalyticsPage() {
   const [monthlyTrend, setMonthlyTrend] = useState([]);
@@ -50,7 +54,7 @@ export default function AnalyticsPage() {
       setBudgetUtilization(budgetRes.data || []);
       setInsights(insightsRes.data || null);
     } catch (error) {
-      console.error("Failed to fetch analytics:", error);
+      showErrorToast(error);
     } finally {
       setLoading(false);
     }
@@ -67,30 +71,43 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             Analytics
           </h1>
 
           <p className="mt-1 text-muted">
-            Understand your financial patterns with interactive charts and AI insights.
+            Understand your financial patterns with interactive charts and AI
+            insights.
           </p>
         </div>
 
-        <select
-          value={range}
-          onChange={(e) => setRange(e.target.value)}
-          className="rounded-lg border border-border bg-surface-raised px-4 py-2 text-sm text-foreground outline-none transition focus:border-brand"
-        >
-          <option value="3m">Last 3 Months</option>
-          <option value="6m">Last 6 Months</option>
-          <option value="12m">Last 12 Months</option>
-          <option value="all">All Time</option>
-        </select>
+        <div className="w-full md:w-56">
+          <Select
+            label="Time Range"
+            value={range}
+            onChange={(e) => setRange(e.target.value)}
+          >
+            <option value="3m">
+              Last 3 Months
+            </option>
+
+            <option value="6m">
+              Last 6 Months
+            </option>
+
+            <option value="12m">
+              Last 12 Months
+            </option>
+
+            <option value="all">
+              All Time
+            </option>
+          </Select>
+        </div>
       </div>
 
-      {/* Charts */}
       <ExpenseTrendChart data={monthlyTrend} />
 
       <IncomeExpenseChart data={incomeExpense} />
@@ -103,7 +120,6 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      {/* AI Insights */}
       <AIInsights insights={insights} />
     </div>
   );

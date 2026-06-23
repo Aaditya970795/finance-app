@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { showErrorToast } from "../../utils/ShowErrorToast";
 
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
@@ -151,25 +152,22 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       setIsSubmitting(true);
-
+  
       const response = await axiosInstance.post(
         "/auth/login",
         formData
       );
-
+  
       login(response.data.token, response.data.user);
-
+  
       toast.success("Login successful");
-
+  
       navigate("/dashboard");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ??
-          "Login failed"
-      );
+      showErrorToast(error);
     } finally {
       setIsSubmitting(false);
     }

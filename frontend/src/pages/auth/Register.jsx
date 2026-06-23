@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 
 import axiosInstance from "../../api/axiosInstance";
 import { Button, Input } from "../../components/ui";
+import { showErrorToast } from "../../utils/ShowErrorToast";
 
 function RegisterBrandPanel() {
   return (
@@ -173,13 +174,13 @@ export default function Register() {
 
       toast.success("Account created successfully");
 
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+
       navigate("/");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ??
-          error.response?.data?.error ??
-          "Registration failed"
-      );
+      showErrorToast(error);
     } finally {
       setIsSubmitting(false);
     }

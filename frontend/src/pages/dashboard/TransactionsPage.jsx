@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { showErrorToast } from "../../utils/showErrorToast";
 import {
   getTransactions,
   createTransaction,
@@ -32,10 +33,9 @@ export default function TransactionsPage() {
 
       setTransactions(data.transactions);
       setError("");
-    } catch (err) {
-      setError(
-        err.message || "Failed to load transactions"
-      );
+    } catch (error) {
+      setError("Failed to load transactions");
+      showErrorToast(error);
     } finally {
       setLoading(false);
     }
@@ -48,21 +48,20 @@ export default function TransactionsPage() {
           editingTransaction._id,
           formData
         );
+      
+        toast.success("Transaction updated successfully");
       } else {
         await createTransaction(formData);
+      
+        toast.success("Transaction added successfully");
       }
-
+      
       await fetchTransactions();
-
+      
       setShowForm(false);
       setEditingTransaction(null);
     } catch (error) {
-      console.error(error);
-    
-      toast.error(
-        error.response?.data?.error ||
-        "Failed to save transaction"
-      );
+      showErrorToast(error);
     }
   };
 
@@ -75,15 +74,10 @@ export default function TransactionsPage() {
 
     try {
       await deleteTransaction(id);
-
+      toast.success("Transaction deleted successfully");
       await fetchTransactions();
     } catch (error) {
-      console.error(error);
-    
-      toast.error(
-        error.response?.data?.error ||
-        "Failed to delete transaction"
-      );
+      showErrorToast(error);
     }
   };
 

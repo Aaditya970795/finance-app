@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
 
-import { Button, Input } from "../ui";
+import {
+  Button,
+  Input,
+  Select,
+  Textarea,
+} from "../ui";
 
 export default function TransactionForm({
   onSubmit,
   initialData = null,
 }) {
-  const defaultForm = {
+  const getDefaultForm = () => ({
     amount: "",
     type: "expense",
     category: "",
     note: "",
     date: new Date().toISOString().split("T")[0],
-  };
+  });
 
-  const [formData, setFormData] = useState(defaultForm);
+  const [formData, setFormData] = useState(getDefaultForm());
 
   useEffect(() => {
     if (initialData) {
@@ -25,10 +30,10 @@ export default function TransactionForm({
         note: initialData.note || "",
         date: initialData.date
           ? initialData.date.split("T")[0]
-          : defaultForm.date,
+          : getDefaultForm().date,
       });
     } else {
-      setFormData(defaultForm);
+      setFormData(getDefaultForm());
     }
   }, [initialData]);
 
@@ -59,26 +64,20 @@ export default function TransactionForm({
         required
       />
 
-      <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">
-          Type
-        </label>
+      <Select
+        label="Type"
+        name="type"
+        value={formData.type}
+        onChange={handleChange}
+      >
+        <option value="expense">
+          Expense
+        </option>
 
-        <select
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-        >
-          <option value="expense">
-            Expense
-          </option>
-
-          <option value="income">
-            Income
-          </option>
-        </select>
-      </div>
+        <option value="income">
+          Income
+        </option>
+      </Select>
 
       <Input
         label="Category"
@@ -98,20 +97,14 @@ export default function TransactionForm({
         onChange={handleChange}
       />
 
-      <div>
-        <label className="mb-2 block text-sm font-medium text-foreground">
-          Note
-        </label>
-
-        <textarea
-          name="note"
-          value={formData.note}
-          onChange={handleChange}
-          rows={4}
-          placeholder="Optional note..."
-          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground placeholder:text-subtle transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-        />
-      </div>
+      <Textarea
+        label="Note"
+        name="note"
+        value={formData.note}
+        onChange={handleChange}
+        placeholder="Optional note..."
+        rows={4}
+      />
 
       <Button
         type="submit"

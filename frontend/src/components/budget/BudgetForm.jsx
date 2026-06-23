@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Button, Input } from "../ui";
+import { Button, Input, Select } from "../ui";
 
 export default function BudgetForm({
   onSubmit,
@@ -70,29 +70,23 @@ export default function BudgetForm({
       />
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-foreground">
-            Month
-          </label>
-
-          <select
-            name="month"
-            value={form.month}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-foreground transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-          >
-            {Array.from({ length: 12 }, (_, i) => (
-              <option
-                key={i + 1}
-                value={i + 1}
-              >
-                {new Date(0, i).toLocaleString("default", {
-                  month: "long",
-                })}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="Month"
+          name="month"
+          value={form.month}
+          onChange={handleChange}
+        >
+          {Array.from({ length: 12 }, (_, i) => (
+            <option
+              key={i + 1}
+              value={i + 1}
+            >
+              {new Date(0, i).toLocaleString("default", {
+                month: "long",
+              })}
+            </option>
+          ))}
+        </Select>
 
         <Input
           label="Year"

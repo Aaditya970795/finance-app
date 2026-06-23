@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { showErrorToast } from "../../utils/showErrorToast";
 import {
   getDashboardSummary,
   getCategoryBreakdown,
@@ -47,7 +47,7 @@ export default function DashboardHome() {
       setMonthly(monthlyRes.data ?? []);
       setBudgets(budgetRes.data ?? []);
     } catch (error) {
-      console.error("Dashboard Error:", error);
+      showErrorToast(error);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { showErrorToast } from "../../utils/showErrorToast";
 
 import {
   createBudget,
@@ -30,7 +32,7 @@ export default function BudgetPage() {
 
       setBudgets(res.data || []);
     } catch (error) {
-      console.error("Failed to fetch budgets:", error);
+      showErrorToast(error);
     } finally {
       setLoading(false);
     }
@@ -59,14 +61,18 @@ export default function BudgetPage() {
     try {
       if (editingBudget) {
         await updateBudget(editingBudget._id, data);
+      
+        toast.success("Budget updated successfully");
       } else {
         await createBudget(data);
+      
+        toast.success("Budget created successfully");
       }
-
+      
       handleCancel();
       await fetchBudgets();
     } catch (error) {
-      console.error("Failed to save budget:", error);
+      showErrorToast(error);
     }
   };
 
@@ -79,9 +85,10 @@ export default function BudgetPage() {
 
     try {
       await deleteBudget(id);
+      toast.success("Budget deleted successfully");
       await fetchBudgets();
     } catch (error) {
-      console.error("Failed to delete budget:", error);
+      showErrorToast(error);
     }
   };
 
