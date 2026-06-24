@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const AppError = require('../utils/temp');
+const AppError = require('../utils/appError');
 
 const validateMiddleware = (req, res, next) => {
     const errors = validationResult(req);
