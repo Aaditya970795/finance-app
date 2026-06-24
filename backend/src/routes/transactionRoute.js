@@ -4,7 +4,7 @@ const router = express.Router();
 const { createTransaction, getTransactions, updateTransaction, deleteTransaction } = require('../controllers/transactionController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const validateTransaction = require('../middlewares/validateTransaction');
-const validateUpdateTransaction = require('../middlewares/validateUpdateTransaction');
+const validateUpdateTransaction = require('../middlewares/validatepdateTransaction');
 const validateMiddleware = require('../middlewares/validateMiddleware');
 
 /*
