@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const budgetModel = require('../models/budgetModel');
-const AppError = require('../utils/appError');
+const AppError = require('../utils/temp');
 // Create a new budget
 const createBudget = async (req, res, next) => {
     try {
