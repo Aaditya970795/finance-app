@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { showErrorToast } from "../../utils/ShowErrorToast";
+import { showErrorToast } from "../../utils/showErrorToast";
 
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import axiosInstance from "../../api/axiosInstance";
 import { Button, Input } from "../../components/ui";
-import { showErrorToast } from "../../utils/ShowErrorToast";
+import { showErrorToast } from "../../utils/showErrorToast";
 
 function RegisterBrandPanel() {
   return (
